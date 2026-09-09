@@ -9,7 +9,7 @@ import Lenis from "lenis";
 gsap.registerPlugin(ScrollTrigger);
 
 const oldScene = document.querySelector(".ink-scene");
-if (oldScene && !oldScene.querySelector(".ink-live")) {
+if (oldScene && !oldScene.querySelector(".ink-canvas")) {
   oldScene.remove();
 }
 if (!document.querySelector(".ink-scene")) {
@@ -17,16 +17,9 @@ if (!document.querySelector(".ink-scene")) {
   scene.className = "ink-scene";
   scene.setAttribute("aria-hidden", "true");
   scene.innerHTML = `
-    <svg class="ink-filters" aria-hidden="true">
-      <filter id="live-bleed" x="-40%" y="-40%" width="180%" height="180%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="7" result="n"/>
-        <feDisplacementMap in="SourceGraphic" in2="n" scale="42" xChannelSelector="R" yChannelSelector="G"/>
-        <feGaussianBlur stdDeviation="2.2"/>
-      </filter>
-    </svg>
     <img class="ink-scene__wash" src="./ink-wash.svg" alt="" />
     <img class="ink-scene__haboku" src="./images/haboku.jpg" alt="" />
-    <div class="ink-live"></div>
+    <div class="ink-live"><canvas class="ink-canvas"></canvas></div>
     <div class="ink-scene__grain"></div>
   `;
   document.body.prepend(scene);
@@ -62,28 +55,127 @@ const wash = document.querySelector(".ink-scene__wash");
 const haboku = document.querySelector(".ink-scene__haboku");
 const grain = document.querySelector(".ink-scene__grain");
 const live = document.querySelector(".ink-live");
+const canvas = live?.querySelector(".ink-canvas") || live?.appendChild(Object.assign(document.createElement("canvas"), { className: "ink-canvas" }));
+const ctx = canvas?.getContext("2d", { alpha: true }) || null;
 const pointers = { x: 0, y: 0, tx: 0, ty: 0, down: false };
 const lastPointer = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.4 };
-let lastTrail = { x: lastPointer.x, y: lastPointer.y };
+const stamps = [];
+let lastTrail = null;
 let lastY = window.scrollY;
 let scrollV = 0;
 let lastScrollSpawn = 0;
 const cleanups = [];
 
-function spawnInk(x, y, size, trail = false) {
-  if (!live || live.childElementCount > 14) {
+function sizeCanvas() {
+  if (!canvas || !ctx) {
     return;
   }
-  const blot = document.createElement("span");
-  blot.className = trail ? "ink-blot ink-blot--trail" : "ink-blot";
-  blot.style.left = `${x}px`;
-  blot.style.top = `${y}px`;
-  blot.style.setProperty("--ink-size", `${size}px`);
-  blot.style.setProperty("--ink-rot", `${Math.round(Math.random() * 50 - 25)}deg`);
-  live.append(blot);
-  const clear = () => blot.remove();
-  blot.addEventListener("animationend", clear, { once: true });
-  window.setTimeout(clear, 1600);
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  canvas.width = Math.round(width * dpr);
+  canvas.height = Math.round(height * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function addStamp(x, y, radius, duration) {
+  if (stamps.length > 420) {
+    stamps.splice(0, stamps.length - 420);
+  }
+  stamps.push({
+    x,
+    y,
+    r: radius * (0.84 + Math.random() * 0.32),
+    rot: Math.random() * Math.PI * 2,
+    seed: Math.random() * 8,
+    born: performance.now(),
+    duration,
+  });
+}
+
+function spawnInk(x, y, size, trail = false) {
+  addStamp(x, y, size * 0.42, trail ? 900 : 1400);
+  if (!trail) {
+    addStamp(x + (Math.random() - 0.5) * 28, y + (Math.random() - 0.5) * 22, size * 0.2, 1200);
+    addStamp(x + (Math.random() - 0.5) * 36, y + (Math.random() - 0.5) * 28, size * 0.14, 1000);
+  }
+}
+
+function strokeInk(x, y, size) {
+  if (!lastTrail) {
+    lastTrail = { x, y };
+    spawnInk(x, y, size, true);
+    return;
+  }
+  const dx = x - lastTrail.x;
+  const dy = y - lastTrail.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist < 3) {
+    return;
+  }
+  if (dist > 280) {
+    lastTrail = { x, y };
+    spawnInk(x, y, size, true);
+    return;
+  }
+  const gap = 8;
+  const steps = Math.max(1, Math.ceil(dist / gap));
+  for (let i = 1; i <= steps; i += 1) {
+    const t = i / steps;
+    spawnInk(lastTrail.x + dx * t, lastTrail.y + dy * t, size * (0.88 + Math.random() * 0.2), true);
+  }
+  lastTrail = { x, y };
+}
+
+function drawBlot(stamp, alpha, radius) {
+  if (!ctx) {
+    return;
+  }
+  ctx.save();
+  ctx.translate(stamp.x, stamp.y);
+  ctx.rotate(stamp.rot);
+  ctx.fillStyle = `rgb(22 22 20 / ${alpha})`;
+  ctx.beginPath();
+  const lobes = 7;
+  for (let i = 0; i <= lobes; i += 1) {
+    const angle = (i / lobes) * Math.PI * 2;
+    const wobble = 0.7 + ((Math.sin(stamp.seed * 11 + i * 2.15) + 1) / 2) * 0.52;
+    const px = Math.cos(angle) * radius * wobble;
+    const py = Math.sin(angle) * radius * wobble;
+    if (i === 0) {
+      ctx.moveTo(px, py);
+    } else {
+      ctx.lineTo(px, py);
+    }
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.fillStyle = `rgb(22 22 20 / ${alpha * 0.4})`;
+  ctx.ellipse(radius * 0.28, -radius * 0.16, radius * 0.34, radius * 0.26, stamp.seed, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function paintInk() {
+  if (!ctx || !canvas) {
+    return;
+  }
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  const now = performance.now();
+  let keep = 0;
+  for (let i = 0; i < stamps.length; i += 1) {
+    const stamp = stamps[i];
+    const t = (now - stamp.born) / stamp.duration;
+    if (t >= 1) {
+      continue;
+    }
+    const fade = t < 0.16 ? t / 0.16 : 1 - (t - 0.16) / 0.84;
+    drawBlot(stamp, Math.max(0, fade) * 0.42, stamp.r * (0.55 + t * 1.2));
+    stamps[keep] = stamp;
+    keep += 1;
+  }
+  stamps.length = keep;
 }
 
 function applyInkMotion() {
@@ -135,13 +227,18 @@ if (!reduce) {
   const tick = (time) => {
     lenis.raf(time * 1000);
     applyInkMotion();
+    paintInk();
   };
+  sizeCanvas();
   gsap.ticker.add(tick);
   gsap.ticker.lagSmoothing(0);
   applyInkMotion();
+  const onResize = () => sizeCanvas();
+  window.addEventListener("resize", onResize);
   cleanups.push(() => {
     gsap.ticker.remove(tick);
     window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onResize);
     lenis.destroy();
   });
 
@@ -150,24 +247,11 @@ if (!reduce) {
     lastPointer.y = event.clientY;
     pointers.tx = event.clientX / window.innerWidth - 0.5;
     pointers.ty = event.clientY / window.innerHeight - 0.5;
-    const dx = event.clientX - lastTrail.x;
-    const dy = event.clientY - lastTrail.y;
-    const dist = Math.hypot(dx, dy);
-    const gap = pointers.down ? 18 : 24;
-    if (dist < gap) {
-      return;
-    }
-    const steps = Math.min(5, Math.max(1, Math.floor(dist / gap)));
-    for (let i = 1; i <= steps; i += 1) {
-      const t = i / steps;
-      spawnInk(
-        lastTrail.x + dx * t,
-        lastTrail.y + dy * t,
-        pointers.down ? 90 + Math.random() * 36 : 70 + Math.random() * 34,
-        true,
-      );
-    }
-    lastTrail = { x: event.clientX, y: event.clientY };
+    strokeInk(
+      event.clientX,
+      event.clientY,
+      pointers.down ? 92 + Math.random() * 28 : 68 + Math.random() * 22,
+    );
   };
   const onPointerDown = (event) => {
     if (event.button !== undefined && event.button !== 0) {
@@ -177,9 +261,13 @@ if (!reduce) {
     lastPointer.x = event.clientX;
     lastPointer.y = event.clientY;
     lastTrail = { x: event.clientX, y: event.clientY };
-    spawnInk(event.clientX, event.clientY, 150 + Math.random() * 70);
+    spawnInk(event.clientX, event.clientY, 168 + Math.random() * 56);
   };
   const onPointerUp = () => {
+    pointers.down = false;
+  };
+  const onPointerLeave = () => {
+    lastTrail = null;
     pointers.down = false;
   };
 
@@ -187,11 +275,13 @@ if (!reduce) {
   document.addEventListener("pointerdown", onPointerDown, { passive: true });
   window.addEventListener("pointerup", onPointerUp, { passive: true });
   window.addEventListener("pointercancel", onPointerUp, { passive: true });
+  document.documentElement.addEventListener("mouseleave", onPointerLeave);
   cleanups.push(() => {
     document.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("pointerdown", onPointerDown);
     window.removeEventListener("pointerup", onPointerUp);
     window.removeEventListener("pointercancel", onPointerUp);
+    document.documentElement.removeEventListener("mouseleave", onPointerLeave);
   });
 
   const intro = document.querySelectorAll(".hero .kicker, .hero h1, .hero p, .hero-frame, .chapter-head .vol, .chapter-head h1, .chapter-head .lead");

@@ -76,53 +76,19 @@ body {
   will-change: transform;
 }
 
-.ink-filters {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-}
-
 .ink-live {
   position: absolute;
   inset: 0;
   overflow: hidden;
 }
 
-.ink-blot {
+.ink-canvas {
   position: absolute;
-  width: var(--ink-size, 180px);
-  height: var(--ink-size, 180px);
-  margin: calc(var(--ink-size, 180px) / -2) 0 0 calc(var(--ink-size, 180px) / -2);
-  border-radius: 42% 58% 47% 53%;
-  background:
-    radial-gradient(circle at 36% 34%, rgb(18 18 16 / 0.62), rgb(18 18 16 / 0.28) 38%, transparent 70%),
-    radial-gradient(circle at 62% 58%, rgb(18 18 16 / 0.28), transparent 48%);
-  box-shadow:
-    -16px 10px 18px -8px rgb(18 18 16 / 0.16),
-    18px -10px 16px -9px rgb(18 18 16 / 0.12);
-  filter: url("#live-bleed");
-  mix-blend-mode: multiply;
-  animation: ink-spread 1.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-}
-
-.ink-blot--trail {
-  animation-duration: 0.9s;
-}
-
-@keyframes ink-spread {
-  0% {
-    transform: rotate(var(--ink-rot, -8deg)) scale(0.12);
-    opacity: 0.78;
-  }
-  38% {
-    opacity: 0.4;
-  }
-  100% {
-    transform: rotate(calc(var(--ink-rot, -8deg) + 12deg)) scale(2.15);
-    opacity: 0;
-  }
+  mix-blend-mode: multiply;
 }
 
 .ink-scene__haboku-soft,
