@@ -71,7 +71,7 @@ let lastScrollSpawn = 0;
 const cleanups = [];
 
 function spawnInk(x, y, size, trail = false) {
-  if (!live || live.childElementCount > 8) {
+  if (!live || live.childElementCount > 14) {
     return;
   }
   const blot = document.createElement("span");
@@ -150,15 +150,24 @@ if (!reduce) {
     lastPointer.y = event.clientY;
     pointers.tx = event.clientX / window.innerWidth - 0.5;
     pointers.ty = event.clientY / window.innerHeight - 0.5;
-    if (!pointers.down) {
-      return;
-    }
     const dx = event.clientX - lastTrail.x;
     const dy = event.clientY - lastTrail.y;
-    if (Math.hypot(dx, dy) > 22) {
-      lastTrail = { x: event.clientX, y: event.clientY };
-      spawnInk(event.clientX, event.clientY, 84 + Math.random() * 40, true);
+    const dist = Math.hypot(dx, dy);
+    const gap = pointers.down ? 18 : 24;
+    if (dist < gap) {
+      return;
     }
+    const steps = Math.min(5, Math.max(1, Math.floor(dist / gap)));
+    for (let i = 1; i <= steps; i += 1) {
+      const t = i / steps;
+      spawnInk(
+        lastTrail.x + dx * t,
+        lastTrail.y + dy * t,
+        pointers.down ? 90 + Math.random() * 36 : 70 + Math.random() * 34,
+        true,
+      );
+    }
+    lastTrail = { x: event.clientX, y: event.clientY };
   };
   const onPointerDown = (event) => {
     if (event.button !== undefined && event.button !== 0) {
