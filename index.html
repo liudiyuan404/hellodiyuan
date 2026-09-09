@@ -3,35 +3,116 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>·</title>
-    <meta name="robots" content="noindex" />
-    <meta name="theme-color" content="#07080a" />
+    <title>刘迪远 · hellodiyuan.xin</title>
+    <meta
+      name="description"
+      content="刘迪远的个人页。熟人进来看看近况就好。"
+    />
+    <link rel="canonical" href="https://hellodiyuan.xin/" />
+    <meta property="og:title" content="刘迪远" />
+    <meta property="og:description" content="熟人进来看看近况就好。" />
+    <meta property="og:url" content="https://hellodiyuan.xin/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="theme-color" content="#101418" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <!--
-      THESIS: a cadmium eclipse field with no identity, not a resume or hello page.
-      OWN-WORLD: ink black, bone, one cadmium accent, ring + blades + shader.
-      STORY: visitor only feels material and motion.
-      FIRST VIEWPORT: full-bleed field, a thin ring, no words.
-      FORM: pinned scroll machine. seed: visual-only.
+      THESIS: a night text message you can walk into, not a resume hero.
+      OWN-WORLD: mineral charcoal, vermilion seal, sharp corners, Smiley Sans shout + Noto body.
+      STORY: visitor knows this is 刘迪远, what he is up to, and how to write back.
+      FIRST VIEWPORT: left giant 你好 / 我是刘迪远, short line, one CTA; right dusk photo with a 远 seal.
+      FORM: correspondence desk. seed: user-asked-build, code-led.
       FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
     -->
-    <h1 class="sr-only">A visual field.</h1>
-    <canvas class="gl" id="gl" aria-hidden="true"></canvas>
-    <div class="grain" aria-hidden="true"></div>
-    <div class="stage" id="stage">
-      <svg class="ring" viewBox="0 0 100 100" aria-hidden="true">
-        <circle cx="50" cy="50" r="36" />
-      </svg>
-      <div class="core" aria-hidden="true"></div>
-      <div class="blades" aria-hidden="true">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
+    <a class="skip" href="#now">跳到近况</a>
+
+    <header class="site-bar">
+      <a class="mark" href="#top">hello diyuan</a>
+      <nav aria-label="页面">
+        <a href="#now">近况</a>
+        <a href="#write">写信</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-label="开场">
+        <div class="hero-copy">
+          <h1>
+            你好。<br />
+            我是刘迪远。
+          </h1>
+          <p>熟人进来看看近况就好。不是简历。</p>
+          <a class="btn" href="#now">看近况</a>
+        </div>
+        <figure class="hero-frame">
+          <img
+            src="/images/dusk-window.jpg"
+            alt="明亮的客厅一角，沙发、落地灯和绿植"
+            width="1200"
+            height="1500"
+          />
+          <span class="seal" aria-hidden="true">远</span>
+        </figure>
+      </section>
+
+      <section class="now" id="now">
+        <h2>最近</h2>
+        <div class="now-grid">
+          <p class="now-lead">
+            备课，把一门课拆成能教的形状。写一点自己用的小工具。英语语法还在过，慢，但每天都有一点。
+          </p>
+          <ul class="now-list">
+            <li>
+              <strong>课</strong>
+              <span>把讲义和练习收成一套能接着用的东西。</span>
+            </li>
+            <li>
+              <strong>工具</strong>
+              <span>代码多半是和 AI 一起改的。能跑、能改，就留下。</span>
+            </li>
+            <li>
+              <strong>英语</strong>
+              <span>句子拆开看。不赶进度，只求看懂。</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="desk" aria-label="一张桌子">
+        <figure class="desk-photo">
+          <img
+            src="/images/paper-desk.jpg"
+            alt="钢笔在纸上写字"
+            width="1600"
+            height="1000"
+          />
+        </figure>
+        <div class="desk-copy">
+          <h2>人还在，事不多。</h2>
+          <p>
+            我不太经营对外形象。这个站就是给认识我的人留一个固定地址：想找我，域名不用猜。
+          </p>
+          <p>
+            文案和照片以后会换成更像我的。你现在看到的，是先能用的第一版。
+          </p>
+        </div>
+      </section>
+
+      <section class="write" id="write">
+        <h2>写信</h2>
+        <p class="write-lead">有事就发邮件。看到会回。</p>
+        <a class="mail" href="mailto:hello@hellodiyuan.xin">hello@hellodiyuan.xin</a>
+      </section>
+    </main>
+
+    <footer class="site-end">
+      <span>hellodiyuan.xin</span>
+      <span>刘迪远，2026</span>
+    </footer>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
