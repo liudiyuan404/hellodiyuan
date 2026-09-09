@@ -79,25 +79,31 @@ function sizeCanvas() {
 }
 
 function addStamp(x, y, radius, duration) {
-  if (stamps.length > 420) {
-    stamps.splice(0, stamps.length - 420);
+  if (stamps.length > 360) {
+    stamps.splice(0, stamps.length - 360);
   }
+  const seed = Math.random() * 8;
   stamps.push({
     x,
     y,
-    r: radius * (0.84 + Math.random() * 0.32),
+    r: radius * (0.78 + Math.random() * 0.36),
     rot: Math.random() * Math.PI * 2,
-    seed: Math.random() * 8,
+    seed,
     born: performance.now(),
     duration,
+    lobes: [
+      { x: 0, y: 0, sx: 1, sy: 0.72 + (seed % 1) * 0.2, a: 1 },
+      { x: 0.22, y: -0.14, sx: 0.62, sy: 0.48, a: 0.45 },
+      { x: -0.18, y: 0.16, sx: 0.5, sy: 0.58, a: 0.32 },
+      { x: 0.08, y: 0.2, sx: 0.28, sy: 0.22, a: 0.22 },
+    ],
   });
 }
 
 function spawnInk(x, y, size, trail = false) {
-  addStamp(x, y, size * 0.42, trail ? 900 : 1400);
+  addStamp(x, y, size * 0.28, trail ? 820 : 1280);
   if (!trail) {
-    addStamp(x + (Math.random() - 0.5) * 28, y + (Math.random() - 0.5) * 22, size * 0.2, 1200);
-    addStamp(x + (Math.random() - 0.5) * 36, y + (Math.random() - 0.5) * 28, size * 0.14, 1000);
+    addStamp(x + (Math.random() - 0.5) * 22, y + (Math.random() - 0.5) * 18, size * 0.14, 1100);
   }
 }
 
@@ -110,7 +116,7 @@ function strokeInk(x, y, size) {
   const dx = x - lastTrail.x;
   const dy = y - lastTrail.y;
   const dist = Math.hypot(dx, dy);
-  if (dist < 3) {
+  if (dist < 6) {
     return;
   }
   if (dist > 280) {
@@ -118,13 +124,32 @@ function strokeInk(x, y, size) {
     spawnInk(x, y, size, true);
     return;
   }
-  const gap = 8;
+  const gap = 16;
   const steps = Math.max(1, Math.ceil(dist / gap));
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
-    spawnInk(lastTrail.x + dx * t, lastTrail.y + dy * t, size * (0.88 + Math.random() * 0.2), true);
+    spawnInk(lastTrail.x + dx * t, lastTrail.y + dy * t, size * (0.86 + Math.random() * 0.22), true);
   }
   lastTrail = { x, y };
+}
+
+function fillSoft(x, y, rx, ry, alpha) {
+  if (!ctx || rx < 0.5 || ry < 0.5 || alpha <= 0) {
+    return;
+  }
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(1, ry / rx);
+  const wash = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+  wash.addColorStop(0, `rgb(32 31 28 / ${alpha})`);
+  wash.addColorStop(0.38, `rgb(32 31 28 / ${alpha * 0.42})`);
+  wash.addColorStop(0.72, `rgb(32 31 28 / ${alpha * 0.12})`);
+  wash.addColorStop(1, "rgb(32 31 28 / 0)");
+  ctx.fillStyle = wash;
+  ctx.beginPath();
+  ctx.arc(0, 0, rx, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawBlot(stamp, alpha, radius) {
@@ -134,26 +159,9 @@ function drawBlot(stamp, alpha, radius) {
   ctx.save();
   ctx.translate(stamp.x, stamp.y);
   ctx.rotate(stamp.rot);
-  ctx.fillStyle = `rgb(22 22 20 / ${alpha})`;
-  ctx.beginPath();
-  const lobes = 7;
-  for (let i = 0; i <= lobes; i += 1) {
-    const angle = (i / lobes) * Math.PI * 2;
-    const wobble = 0.7 + ((Math.sin(stamp.seed * 11 + i * 2.15) + 1) / 2) * 0.52;
-    const px = Math.cos(angle) * radius * wobble;
-    const py = Math.sin(angle) * radius * wobble;
-    if (i === 0) {
-      ctx.moveTo(px, py);
-    } else {
-      ctx.lineTo(px, py);
-    }
-  }
-  ctx.closePath();
-  ctx.fill();
-  ctx.beginPath();
-  ctx.fillStyle = `rgb(22 22 20 / ${alpha * 0.4})`;
-  ctx.ellipse(radius * 0.28, -radius * 0.16, radius * 0.34, radius * 0.26, stamp.seed, 0, Math.PI * 2);
-  ctx.fill();
+  stamp.lobes.forEach((lobe) => {
+    fillSoft(radius * lobe.x, radius * lobe.y, radius * lobe.sx, radius * lobe.sy, alpha * lobe.a);
+  });
   ctx.restore();
 }
 
@@ -170,8 +178,8 @@ function paintInk() {
     if (t >= 1) {
       continue;
     }
-    const fade = t < 0.16 ? t / 0.16 : 1 - (t - 0.16) / 0.84;
-    drawBlot(stamp, Math.max(0, fade) * 0.42, stamp.r * (0.55 + t * 1.2));
+    const fade = t < 0.12 ? t / 0.12 : 1 - (t - 0.12) / 0.88;
+    drawBlot(stamp, Math.max(0, fade) * 0.2, stamp.r * (0.7 + t * 0.85));
     stamps[keep] = stamp;
     keep += 1;
   }
@@ -250,7 +258,7 @@ if (!reduce) {
     strokeInk(
       event.clientX,
       event.clientY,
-      pointers.down ? 92 + Math.random() * 28 : 68 + Math.random() * 22,
+      pointers.down ? 72 + Math.random() * 18 : 52 + Math.random() * 16,
     );
   };
   const onPointerDown = (event) => {
@@ -261,7 +269,7 @@ if (!reduce) {
     lastPointer.x = event.clientX;
     lastPointer.y = event.clientY;
     lastTrail = { x: event.clientX, y: event.clientY };
-    spawnInk(event.clientX, event.clientY, 168 + Math.random() * 56);
+    spawnInk(event.clientX, event.clientY, 120 + Math.random() * 36);
   };
   const onPointerUp = () => {
     pointers.down = false;
