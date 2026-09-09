@@ -8,6 +8,28 @@ import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
+if (!document.querySelector(".ink-scene")) {
+  const scene = document.createElement("div");
+  scene.className = "ink-scene";
+  scene.setAttribute("aria-hidden", "true");
+  document.body.prepend(scene);
+}
+
+if (!document.querySelector(".sheet")) {
+  const bar = document.querySelector(".site-bar");
+  const main = document.querySelector("main");
+  const foot = document.querySelector(".site-end");
+  if (bar && main) {
+    const sheet = document.createElement("div");
+    sheet.className = "sheet";
+    bar.before(sheet);
+    sheet.append(bar, main);
+    if (foot) {
+      sheet.append(foot);
+    }
+  }
+}
+
 const here = decodeURIComponent((location.pathname.split("/").pop() || "index.html") || "index.html");
 const file = here === "" ? "index.html" : here;
 
