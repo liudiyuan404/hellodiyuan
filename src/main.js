@@ -101,9 +101,9 @@ function addStamp(x, y, radius, duration) {
 }
 
 function spawnInk(x, y, size, trail = false) {
-  addStamp(x, y, size * 0.28, trail ? 820 : 1280);
+  addStamp(x, y, size * 0.4, trail ? 980 : 1450);
   if (!trail) {
-    addStamp(x + (Math.random() - 0.5) * 22, y + (Math.random() - 0.5) * 18, size * 0.14, 1100);
+    addStamp(x + (Math.random() - 0.5) * 28, y + (Math.random() - 0.5) * 22, size * 0.2, 1200);
   }
 }
 
@@ -124,7 +124,7 @@ function strokeInk(x, y, size) {
     spawnInk(x, y, size, true);
     return;
   }
-  const gap = 16;
+  const gap = 13;
   const steps = Math.max(1, Math.ceil(dist / gap));
   for (let i = 1; i <= steps; i += 1) {
     const t = i / steps;
@@ -141,10 +141,10 @@ function fillSoft(x, y, rx, ry, alpha) {
   ctx.translate(x, y);
   ctx.scale(1, ry / rx);
   const wash = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
-  wash.addColorStop(0, `rgb(32 31 28 / ${alpha})`);
-  wash.addColorStop(0.38, `rgb(32 31 28 / ${alpha * 0.42})`);
-  wash.addColorStop(0.72, `rgb(32 31 28 / ${alpha * 0.12})`);
-  wash.addColorStop(1, "rgb(32 31 28 / 0)");
+  wash.addColorStop(0, `rgb(24 23 21 / ${alpha})`);
+  wash.addColorStop(0.34, `rgb(24 23 21 / ${alpha * 0.55})`);
+  wash.addColorStop(0.68, `rgb(24 23 21 / ${alpha * 0.18})`);
+  wash.addColorStop(1, "rgb(24 23 21 / 0)");
   ctx.fillStyle = wash;
   ctx.beginPath();
   ctx.arc(0, 0, rx, 0, Math.PI * 2);
@@ -179,7 +179,7 @@ function paintInk() {
       continue;
     }
     const fade = t < 0.12 ? t / 0.12 : 1 - (t - 0.12) / 0.88;
-    drawBlot(stamp, Math.max(0, fade) * 0.2, stamp.r * (0.7 + t * 0.85));
+    drawBlot(stamp, Math.max(0, fade) * 0.34, stamp.r * (0.85 + t * 1.05));
     stamps[keep] = stamp;
     keep += 1;
   }
@@ -258,7 +258,7 @@ if (!reduce) {
     strokeInk(
       event.clientX,
       event.clientY,
-      pointers.down ? 72 + Math.random() * 18 : 52 + Math.random() * 16,
+      pointers.down ? 108 + Math.random() * 24 : 86 + Math.random() * 20,
     );
   };
   const onPointerDown = (event) => {
@@ -269,7 +269,7 @@ if (!reduce) {
     lastPointer.x = event.clientX;
     lastPointer.y = event.clientY;
     lastTrail = { x: event.clientX, y: event.clientY };
-    spawnInk(event.clientX, event.clientY, 120 + Math.random() * 36);
+    spawnInk(event.clientX, event.clientY, 176 + Math.random() * 40);
   };
   const onPointerUp = () => {
     pointers.down = false;
