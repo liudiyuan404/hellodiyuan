@@ -8,10 +8,21 @@ import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const oldScene = document.querySelector(".ink-scene");
+if (oldScene && !oldScene.querySelector(".ink-scene__haboku-floor")) {
+  oldScene.remove();
+}
 if (!document.querySelector(".ink-scene")) {
   const scene = document.createElement("div");
   scene.className = "ink-scene";
   scene.setAttribute("aria-hidden", "true");
+  scene.innerHTML = `
+    <img class="ink-scene__wash" src="./ink-wash.svg" alt="" />
+    <img class="ink-scene__haboku-soft" src="./images/haboku.jpg" alt="" />
+    <img class="ink-scene__haboku" src="./images/haboku.jpg" alt="" />
+    <img class="ink-scene__haboku-floor" src="./images/haboku.jpg" alt="" />
+    <div class="ink-scene__grain"></div>
+  `;
   document.body.prepend(scene);
 }
 
