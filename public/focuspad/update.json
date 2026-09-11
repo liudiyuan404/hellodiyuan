@@ -1,6 +1,6 @@
 {
-  "version": 39,
-  "notes": "手机周视图安排标题完整换行，平板外观不变",
+  "version": 40,
+  "notes": "手机周视图小字居中，平板外观不变",
   "zip": "web.zip",
-  "sha256": "684de8a95d0e51f93316cb54b9546f7d7b357b5d4dbbcae0e320573e59c47486"
+  "sha256": "8f68b39071b5836aace2e281b1d7492635583a7ed4dac34d72e0dcbbc26506ff"
 }
