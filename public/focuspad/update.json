@@ -1,6 +1,6 @@
 {
-  "version": 35,
-  "notes": "修复开屏白屏",
+  "version": 36,
+  "notes": "手机演示数据不会覆盖平板底稿",
   "zip": "web.zip",
-  "sha256": "36ce0d22f9af4daca21240802ad6bce8715da89215e60151f390d51ec4cbd297"
+  "sha256": "9460371719a9b924ee9033e8abb88e8686d7f35f70990551160902c6352f5d07"
 }
