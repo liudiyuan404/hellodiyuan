@@ -1,6 +1,6 @@
 {
-  "version": 32,
-  "notes": "第一次用平板打底，之后两边改动都会合并同步",
+  "version": 33,
+  "notes": "修复同步后白屏，平板数据不再被演示数据盖掉",
   "zip": "web.zip",
-  "sha256": "a4f328fbdd8dfa217d131c6cf200d4323f9f273639ddf5790cffd38bbff3b43e"
+  "sha256": "a20b46c9eeb270c18927eafa002b72248cf3c046e9e790e7e5a27aa546e27bae"
 }
