@@ -1,6 +1,6 @@
 {
-  "version": 37,
-  "notes": "只改手机窄屏布局，平板外观不变",
+  "version": 38,
+  "notes": "手机避开状态栏，平板外观不变",
   "zip": "web.zip",
-  "sha256": "6a6589cba4e174ecfa860676c474f19ef912be1809f0ea5cf0d4ab13076c8722"
+  "sha256": "9ba09f249b875960908115d27b762af94dd4d075623c514c8c0d624a526c1791"
 }
