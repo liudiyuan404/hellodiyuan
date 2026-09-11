@@ -1,6 +1,6 @@
 {
-  "version": 29,
-  "notes": "从 GitHub 在线更新，不用连电脑",
+  "version": 30,
+  "notes": "平板首次同步以平板数据为底稿",
   "zip": "web.zip",
-  "sha256": "ab4e2a78dda2c602f4d240014f9dfd5582a1a5b36bc06d426f839c35298d05fe"
+  "sha256": "2d88c8fc4bf1dd0cb77f7293b87a9087e0d70f2058101d3347092574383b6413"
 }
