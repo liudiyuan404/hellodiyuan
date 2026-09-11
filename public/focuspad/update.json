@@ -1,6 +1,6 @@
 {
   "version": 29,
-  "notes": "从网站在线更新，不用连电脑",
+  "notes": "从 GitHub 在线更新，不用连电脑",
   "zip": "web.zip",
-  "sha256": "00f8b8fb9eceeb3e0095ef582bf7838cda56b0736989ad5808166df9fb4f4e64"
+  "sha256": "ab4e2a78dda2c602f4d240014f9dfd5582a1a5b36bc06d426f839c35298d05fe"
 }
