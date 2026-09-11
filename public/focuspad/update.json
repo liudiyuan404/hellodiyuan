@@ -1,6 +1,6 @@
 {
-  "version": 33,
-  "notes": "修复同步后白屏，平板数据不再被演示数据盖掉",
+  "version": 34,
+  "notes": "新安装包不再使用坏掉的旧热更新缓存",
   "zip": "web.zip",
-  "sha256": "a20b46c9eeb270c18927eafa002b72248cf3c046e9e790e7e5a27aa546e27bae"
+  "sha256": "5429f7417efd013ea2273dd8325fe3b872dd564367d7ac377c6b7efbed92f863"
 }
