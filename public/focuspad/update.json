@@ -1,6 +1,6 @@
 {
-  "version": 34,
-  "notes": "新安装包不再使用坏掉的旧热更新缓存",
+  "version": 35,
+  "notes": "修复开屏白屏",
   "zip": "web.zip",
-  "sha256": "5429f7417efd013ea2273dd8325fe3b872dd564367d7ac377c6b7efbed92f863"
+  "sha256": "36ce0d22f9af4daca21240802ad6bce8715da89215e60151f390d51ec4cbd297"
 }
