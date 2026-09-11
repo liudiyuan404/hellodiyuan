@@ -1,6 +1,6 @@
 {
-  "version": 31,
-  "notes": "只有平板 App 能写云端底稿，电脑网页不会占位",
+  "version": 32,
+  "notes": "第一次用平板打底，之后两边改动都会合并同步",
   "zip": "web.zip",
-  "sha256": "0f5a5a44f9277e1259cf4592715a3203cfa44c42dfa222a051d855d6c45dc584"
+  "sha256": "a4f328fbdd8dfa217d131c6cf200d4323f9f273639ddf5790cffd38bbff3b43e"
 }
