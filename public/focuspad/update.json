@@ -1,6 +1,6 @@
 {
-  "version": 43,
-  "notes": "更新页改成这台/线上，避免和任务清单混淆",
+  "version": 44,
+  "notes": "打开软件自动检查更新并同步云端",
   "zip": "web.zip",
-  "sha256": "9f17059ee7fcb9b21177d332af95a89aa47da3e66a979e6e3d6ca67d6d57e0f5"
+  "sha256": "76f35981161ac447a2d8a845fcd25db57e0a6f3b723d5fb504363f0054160dab"
 }
