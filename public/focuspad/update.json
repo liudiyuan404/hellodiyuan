@@ -1,6 +1,6 @@
 {
-  "version": 42,
-  "notes": "改数据后自动上传云端",
+  "version": 43,
+  "notes": "更新页改成这台/线上，避免和任务清单混淆",
   "zip": "web.zip",
-  "sha256": "b083bd42fc33ec75ab6489fd3ae71d3c0602942b86fe6c60e2eaf721a82454c4"
+  "sha256": "9f17059ee7fcb9b21177d332af95a89aa47da3e66a979e6e3d6ca67d6d57e0f5"
 }
