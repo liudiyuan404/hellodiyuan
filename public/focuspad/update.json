@@ -1,6 +1,6 @@
 {
-  "version": 44,
-  "notes": "打开软件自动检查更新并同步云端",
+  "version": 45,
+  "notes": "补记选开始结束、闹钟滚轮选时分、删除后不再回来",
   "zip": "web.zip",
-  "sha256": "76f35981161ac447a2d8a845fcd25db57e0a6f3b723d5fb504363f0054160dab"
+  "sha256": "63a7d69f7d4ba7ae9211d255c26c0a4ee041776eff6bea9b3f21d7af91280122"
 }
