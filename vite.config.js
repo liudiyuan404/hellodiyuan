@@ -12,13 +12,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        zhidu: resolve(__dirname, "zhidu.html"),
-        sixiang: resolve(__dirname, "sixiang.html"),
-        tianxia: resolve(__dirname, "tianxia.html"),
-        wenyi: resolve(__dirname, "wenyi.html"),
-        riyong: resolve(__dirname, "riyong.html"),
-        baigong: resolve(__dirname, "baigong.html"),
-        kaogu: resolve(__dirname, "kaogu.html"),
       },
     },
   },
