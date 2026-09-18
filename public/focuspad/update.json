@@ -1,6 +1,6 @@
 {
-  "version": 45,
-  "notes": "补记选开始结束、闹钟滚轮选时分、删除后不再回来",
+  "version": 46,
+  "notes": "平板打开会合并手机记录，不再用本地底稿盖掉云端",
   "zip": "web.zip",
-  "sha256": "63a7d69f7d4ba7ae9211d255c26c0a4ee041776eff6bea9b3f21d7af91280122"
+  "sha256": "cfff729828a973cfafff0d8bee15959cd0222f80db9d5e5fa4832a3a0fd80e54"
 }
