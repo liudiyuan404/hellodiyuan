@@ -1,6 +1,6 @@
 {
-  "version": 46,
-  "notes": "平板打开会合并手机记录，不再用本地底稿盖掉云端",
+  "version": 47,
+  "notes": "设置页对照云端条数，平板同步失败会说出来",
   "zip": "web.zip",
-  "sha256": "cfff729828a973cfafff0d8bee15959cd0222f80db9d5e5fa4832a3a0fd80e54"
+  "sha256": "03421bf2a5e3058b1a25bd66e82b6e288b0fe35b22a07b51e5fdc1df649584d6"
 }
