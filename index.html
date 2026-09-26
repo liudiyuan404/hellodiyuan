@@ -228,6 +228,9 @@
   .field output{font-size:11px; color:var(--accent); min-width:44px; text-align:right; font-variant-numeric:tabular-nums}
   input[type=range]{
     -webkit-appearance:none; appearance:none; width:100%; min-width:70px; height:22px; background:transparent; cursor:pointer;
+    /* the drag belongs to the slider: stop the browser panning the page or reading a
+       left-edge drag as a "go back" gesture (which is what broke the drag on a phone) */
+    touch-action:none; overscroll-behavior:contain;
   }
   input[type=range]::-webkit-slider-runnable-track{height:2px; border-radius:2px; background:linear-gradient(90deg,var(--accent) var(--p,50%),rgba(255,255,255,.13) var(--p,50%))}
   input[type=range]::-webkit-slider-thumb{
@@ -3097,7 +3100,8 @@ function buildCodePanel(){
     codeEls.pre.removeChild(probe);
   } catch(e){ charW = 0; }
   codeState = { lh: lh0, h: h, viewH: Math.max(40, h), wrapW: codeEls.wrap.clientWidth || 0,
-                appliedScroll: -1, appliedLine: -1, smooth: false,
+                /* -1 forces the first frame after a rebuild to set both transforms */
+                appliedScroll: -1, appliedLine: -1, hlOn: false, smooth: false,
                 step: undefined, line: -1, scroll: 0, max: src.length, charW: charW,
                 hits: new Array(src.length + 1).fill(0), hitsAt: 0, paintedAt: -1, lines: {} };
   markHotLines();
@@ -3152,10 +3156,16 @@ function updateCode(frame){
     if(codeState.appliedScroll !== codeState.scroll){
       codeEls.lines.style.transform = 'translateY(' + (-codeState.scroll) + 'px)';
       codeEls.pre.style.transform   = 'translateY(' + (-codeState.scroll) + 'px)';
+      if(codeState.appliedLine > 0){
+        codeEls.hl.style.transform = 'translateY(' + ((codeState.appliedLine - 1) * codeState.lh - codeState.scroll) + 'px)';
+      }
       codeState.appliedScroll = codeState.scroll;
     }
     if(codeState.appliedLine !== ln){
-      codeEls.hl.style.transform = 'translateY(' + y + 'px)';
+      /* the bar is a sibling of the code text, so it needs the content position minus
+         the scroll offset — otherwise it stays at its unscrolled y and vanishes when the
+         panel scrolls (which is what happened on phones) */
+      codeEls.hl.style.transform = 'translateY(' + (y - codeState.scroll) + 'px)';
       codeState.appliedLine = ln;
     }
     if(!codeState.hlOn){ codeEls.hl.classList.add('on'); codeState.hlOn = true; }
@@ -3420,7 +3430,20 @@ window.__sortingAtlas = {
       mainTop: Math.round(main.top), mainBottom: Math.round(main.bottom), mainH: Math.round(main.height),
       elTop: eb ? Math.round(eb.top) : null, elBottom: eb ? Math.round(eb.bottom) : null,
       inside: eb ? (eb.top >= main.top - 1 && eb.bottom <= main.bottom + 1) : null,
-      transform: codeEls.pre.style.transform
+      transform: codeEls.pre.style.transform,
+      hlTransform: codeEls.hl.style.transform,
+      /* used by the automated checks: is the HIGHLIGHT BAR itself on screen and in line
+         with its row? (the row can be in view while the bar is not) */
+      hlOn: codeState.hlOn, appliedLine: codeState.appliedLine,
+      hlTop: Math.round(codeEls.hl.getBoundingClientRect().top),
+      hlInside: (function(){
+        const b = codeEls.hl.getBoundingClientRect(), m = codeEls.main.getBoundingClientRect();
+        return b.bottom > m.top + 1 && b.top < m.bottom - 1;
+      })(),
+      hlAligned: Math.abs(codeEls.hl.getBoundingClientRect().top - (el ? el.getBoundingClientRect().top : 0)) < 2,
+      appliedScroll: codeState.appliedScroll, codeStateScroll: codeState.scroll,
+      viewH: codeState.viewH, lh: codeState.lh, step: codeState.step,
+      preTransform: codeEls.pre.style.transform
     };
   },
   colX: function(p){
