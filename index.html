@@ -2434,6 +2434,36 @@ function resize(){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
+/* If exactly two positions exchanged values between two frames, the animation can
+   show a real left/right swap instead of bars growing and shrinking in place. */
+function findSwapPair(from, to){
+  if(!from || !to || from.length !== to.length) return null;
+  let i = -1, j = -1, diff = 0;
+  for(let p = 0; p < from.length; p++){
+    if(from[p] !== to[p]){
+      diff++;
+      if(diff > 2) return null;
+      if(i < 0) i = p; else j = p;
+    }
+  }
+  if(diff !== 2) return null;
+  return (from[i] === to[j] && from[j] === to[i]) ? [i, j] : null;
+}
+
+/* Geometry of a swap at animation time t: the two bars slide straight across into
+   each other's slots — no hop, no arc, just a clean horizontal translation.
+   Pulled out as a pure function so it can be verified. */
+function swapTravel(pair, t, bw){
+  const lo = Math.min(pair[0], pair[1]), hi = Math.max(pair[0], pair[1]);
+  const slides = (hi - lo) * bw;
+  const eased = t * t * (3 - 2 * t);          // smooth start and stop
+  return {
+    lo: lo, hi: hi, slides: slides, eased: eased,
+    left:  { from: lo, to: hi, offset:  slides * eased, lift: 0 },
+    right: { from: hi, to: lo, offset: -slides * eased, lift: 0 },
+  };
+}
+
 function draw(){
   const W = S.size, H = stage.getBoundingClientRect().height;
   ctx.clearRect(0, 0, W, H);
@@ -2478,41 +2508,89 @@ function draw(){
     }
   }
 
-  /* bars (interpolated) */
+  /* bars */
   const range = Math.max(1, n);
   const hover = S.hover;
+  const w = Math.max(1, bw - (bw > 7 ? 1.6 : bw > 3 ? 0.9 : 0.45));
+
+  function barColor(p, v, extraLight){
+    if(sortedSet && sortedSet.has(p)) return mix([22,58,52], GOLD, 0.22);
+    return mix(MUT, MUT_HI, v / range);
+  }
+
+  /* paint one bar of height h with its top at topY; x is the left edge */
+  function paintBar(x, topY, h, c, opts){
+    const o = opts || {};
+    const g = ctx.createLinearGradient(0, topY, 0, topY + h);
+    g.addColorStop(0, css(shade(c, 1.16), 0.97));
+    g.addColorStop(1, css(shade(c, 0.45), 0.72));
+    ctx.fillStyle = g;
+    if(o.overlap){
+      ctx.save();
+      ctx.beginPath(); ctx.rect(Math.round(x) - 2.5, topY - 6, Math.round(w) + 5, h + 8); ctx.clip();
+      if(S.barStyle === 'round'){
+        ctx.beginPath(); ctx.roundRect(Math.round(x), topY, w, h, Math.min(w / 2, 3.5)); ctx.fill();
+      } else if(S.barStyle === 'thin'){
+        ctx.fillRect(Math.round(x) + (bw - w) / 2, topY, Math.max(1, w * 0.5), h);
+      } else {
+        ctx.fillRect(Math.round(x), topY, w, h);
+      }
+      ctx.restore();
+      ctx.strokeStyle = css(shade(c, 1.5), 0.85);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.roundRect(Math.round(x) - 1, topY - 1, w + 2, h + 1, Math.min(w / 2, 3.5)); ctx.stroke();
+    } else {
+      if(S.barStyle === 'round'){
+        ctx.beginPath(); ctx.roundRect(x, topY, w, h, Math.min(w / 2, 3.5)); ctx.fill();
+      } else if(S.barStyle === 'thin'){
+        ctx.fillRect(x + (bw - w) / 2, topY, Math.max(1, w * 0.5), h);
+      } else {
+        ctx.fillRect(x, topY, w, h);
+      }
+    }
+    if(o.cap){
+      ctx.fillStyle = css(c, o.capAlpha === undefined ? 0.55 : o.capAlpha);
+      ctx.fillRect(Math.round(x) - 1, topY - 4, w + 2, 2);
+    }
+  }
+
+  /* a swap animates as the two bars trading places, arcing past each other */
+  const pair = (nxt && t < 1) ? findSwapPair(A, nxt.a) : null;
+  const eased = t * t * (3 - 2 * t);
+
+  if(pair){
+    const g = swapTravel(pair, t, bw);
+    [[g.left, 0], [g.right, 1]].forEach(function(entry){
+      const side = entry[0], k = entry[1];
+      const p = side.from;
+      const v = A[p];
+      const h = Math.max(1.2, (v / range) * (y1 - y0));
+      const lift = side.lift;
+      /* each bar takes the colour of the slot it is heading for, so while the pair
+         overlaps you can still tell them apart: the rightward one warms, the leftward
+         one cools. Drawn over a bright ring so the crossing reads clearly. */
+      const base = (side.to === g.hi) ? mix(AC2, [255,236,200], 0.35)
+                                      : mix(AC1, [150,200,255], 0.30);
+      paintBar(x0 + p * bw + side.offset, y1 - h - lift, h, base,
+               { overlap: true, cap: true, capAlpha: 0.85 });
+    });
+  }
+
   for(let p = 0; p < n; p++){
+    if(pair && (p === pair[0] || p === pair[1])) continue;   // drawn as the moving pair
     const vA = A[p], vB = nxt ? nxt.a[p] : vA;
     const v = vA + (vB - vA) * t;
     const h = Math.max(1.2, (v / range) * (y1 - y0));
     const bx = x0 + p * bw;
-    const w = Math.max(1, bw - (bw > 7 ? 1.6 : bw > 3 ? 0.9 : 0.45));
     let c;
     if(cur && (p === cur.i || p === cur.j || p === cur.k)) c = AC2;
-    else if(sortedSet && sortedSet.has(p)) c = mix([22,58,52], GOLD, 0.22);
-    else c = mix(MUT, MUT_HI, v / range);
-    if(cur && cur.swap && (p === cur.i || p === cur.j)) c = [255, 244, 232];
+    else c = barColor(p, v);
     if(p === hover) c = mix(c, [255,255,255], 0.35);
 
-    const top = y1 - h, bot = y1;
-    const g = ctx.createLinearGradient(0, top, 0, bot);
-    g.addColorStop(0, css(shade(c, 1.16), 0.97));
-    g.addColorStop(1, css(shade(c, 0.45), 0.72));
-    ctx.fillStyle = g;
-
-    if(S.barStyle === 'round'){
-      ctx.beginPath(); ctx.roundRect(bx, top, w, h, Math.min(w / 2, 3.5)); ctx.fill();
-    } else if(S.barStyle === 'thin'){
-      ctx.fillRect(bx + (bw - w) / 2, top, Math.max(1, w * 0.5), h);
-    } else {
-      ctx.fillRect(bx, top, w, h);
-    }
-
-    /* glow cap for the active pair */
-    if(cur && (p === cur.i || p === cur.j) && !S.done){
-      ctx.fillStyle = css(c, 0.55);
-      ctx.fillRect(bx - 1, top - 4, w + 2, 2);
-    }
+    paintBar(bx, y1 - h, h, c, {
+      overlap: false,
+      cap: !!(cur && (p === cur.i || p === cur.j) && !S.done),
+    });
   }
 
   /* baseline */
@@ -3137,6 +3215,68 @@ updateChips(0);
 regenerate(true);
 window.__sortingAtlas = {
   select: function(key){ if(ALGOS[key]) selectAlgo(key); },
+  load: function(algo, values){
+    if(ALGOS[algo]) S.algo = algo;
+    S.values = values.slice(); S.n = values.length;
+    S.frames = buildFrames(); S.nframes = S.frames.length;
+    S.raf = 0; S.acc = 0; S.done = false; S.playing = false; S.hover = -1;
+    if(typeof buildCodePanel === 'function') buildCodePanel();
+    return { frames: S.nframes, values: S.values.slice() };
+  },
+  findSwap: function(i){
+    return findSwapPair(S.frames[i] && S.frames[i].a, S.frames[i+1] && S.frames[i+1].a);
+  },
+  goto: function(i, frac){
+    S.raf = i; S.acc = frac || 0; S.done = false; S.playing = false;
+    setPlayIcon();
+  },
+  /* for automated checks: inked x-runs on one scanline of the canvas */
+  sampleRow: function(pxAboveBaseline){
+    const r = cv.getBoundingClientRect();
+    const Hcss = r.height;
+    const rulerH = S.ruler ? 22 : 0;
+    const y1 = Hcss - 16 - rulerH;
+    const dpr = cv.width / r.width;
+    const y = Math.max(0, Math.round((y1 - pxAboveBaseline) * dpr));
+    const d = ctx.getImageData(0, y, cv.width, 1).data;
+    const runs = [];
+    let start = -1;
+    for(let x = 0; x < cv.width; x++){
+      const a = d[x*4+3], rr = d[x*4], gg = d[x*4+1], bb = d[x*4+2];
+      const inked = a > 40 && (rr + gg + bb) > 90;
+      if(inked && start < 0) start = x;
+      if(!inked && start >= 0){ runs.push([Math.round(start/dpr), Math.round(x/dpr)]); start = -1; }
+    }
+    if(start >= 0) runs.push([Math.round(start/dpr), Math.round(cv.width/dpr)]);
+    return { y: y, dpr: dpr, runs: runs, baseline: y1 };
+  },
+  /* publish the swap geometry so it can be verified without pixel scraping */
+  frameCount: function(){ return S.nframes; },
+  swapAt: function(i){
+    const g = findSwapPair(S.frames[i] && S.frames[i].a, S.frames[i+1] && S.frames[i+1].a);
+    if(!g) return null;
+    const r = cv.getBoundingClientRect();
+    const bw = Math.max(1.15, ((r.width - 20) - 20) / Math.max(1, S.n));
+    const out = { bw: bw, pair: g, positions: {} };
+    [0, 0.25, 0.5, 0.75, 1].forEach(function(t){
+      const st = swapTravel(g, t, bw);
+      out.positions[t] = {
+        left:  { slot: st.left.from,  centre: st.left.from  * bw + bw / 2 + st.left.offset,  lift: st.left.lift },
+        right: { slot: st.right.from, centre: st.right.from * bw + bw / 2 + st.right.offset, lift: st.right.lift },
+      };
+    });
+    return out;
+  },
+  colX: function(p){
+    const r = cv.getBoundingClientRect();
+    const padL = 20, padR = 20;
+    const bw = ((r.width - padR) - padL) / S.n;
+    return padL + p * bw + bw / 2;
+  },
+  arrays: function(i){
+    return { from: S.frames[i] ? S.frames[i].a.slice() : null,
+             to: S.frames[i+1] ? S.frames[i+1].a.slice() : null };
+  },
   freeze: function(pct){
     S.raf = Math.max(0, Math.round((S.nframes - 1) * pct));
     S.acc = 0; S.done = false; S.playing = false;
