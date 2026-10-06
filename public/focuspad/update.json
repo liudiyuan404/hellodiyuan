@@ -1,6 +1,6 @@
 {
-  "version": 48,
-  "notes": "界面改成浅纸色，清单空状态和设置分组",
+  "version": 49,
+  "notes": "今天日程首页、手动完成安排与专注记录整理",
   "zip": "web.zip",
-  "sha256": "716038e3f697ebd01b42bff73617ac5da9beefb2b5d5764dff7ab185dc09f506"
+  "sha256": "1e5590e7c6d8b9f93b18d6067f5694b8239d3ccc69c9292e33d07eb145fce520"
 }
