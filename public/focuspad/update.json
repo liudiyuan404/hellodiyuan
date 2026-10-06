@@ -1,6 +1,6 @@
 {
-  "version": 47,
-  "notes": "设置页对照云端条数，平板同步失败会说出来",
+  "version": 48,
+  "notes": "界面改成浅纸色，清单空状态和设置分组",
   "zip": "web.zip",
-  "sha256": "03421bf2a5e3058b1a25bd66e82b6e288b0fe35b22a07b51e5fdc1df649584d6"
+  "sha256": "716038e3f697ebd01b42bff73617ac5da9beefb2b5d5764dff7ab185dc09f506"
 }
