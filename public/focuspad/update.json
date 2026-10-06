@@ -1,6 +1,6 @@
 {
-  "version": 49,
-  "notes": "今天日程首页、手动完成安排与专注记录整理",
+  "version": 50,
+  "notes": "任务完成勾选居中并改为黄色",
   "zip": "web.zip",
-  "sha256": "1e5590e7c6d8b9f93b18d6067f5694b8239d3ccc69c9292e33d07eb145fce520"
+  "sha256": "cafbc88ce09f4841afea67fa797247bea7a2747af65d90d06f4c6553d5fd3b20"
 }
