@@ -1,6 +1,6 @@
 {
-  "version": 54,
-  "notes": "五个导航入口统一 0.65 秒主动作与 0.8 秒收尾，保留各自动效特色",
+  "version": 55,
+  "notes": "支持新版 Android 通知栏同步计时、暂停继续和结束记录",
   "zip": "web.zip",
-  "sha256": "2d034a88da4f21fe850f1ee05fd49396ac50cd758295b2621b8d68e931089ae9"
+  "sha256": "4505d466d9a7c27de237c6315518ce3f37e7026eb90ca53dcbded23a45d60e70"
 }
