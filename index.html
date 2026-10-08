@@ -1,3476 +1,495 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sorting Atlas · 排序算法动画图鉴</title>
-<link rel="canonical" href="https://hellodiyuan.xin/">
-<meta name="description" content="九种经典排序的逐帧解剖，可调速度、规模，并对照代码行。">
-<meta property="og:title" content="Sorting Atlas · 排序算法动画图鉴">
-<meta property="og:description" content="九种经典排序的逐帧解剖，可调速度、规模，并对照代码行。">
-<meta property="og:url" content="https://hellodiyuan.xin/">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="zh_CN">
-<meta name="theme-color" content="#0b0d12">
-<link rel="icon" href="./favicon.svg" type="image/svg+xml">
-<style>
-  :root{
-    --bg:#0b0d12;
-    --bg2:#0e1117;
-    --panel:#12151d;
-    --panel2:#161a24;
-    --line:rgba(255,255,255,.075);
-    --line2:rgba(255,255,255,.15);
-    --ink:#ede9e0;
-    --dim:#9d9d94;
-    --dim2:#8e9189;
-    --accent:#f0a13c;
-    --accent2:#ffce7a;
-    --shadow:0 30px 70px -30px rgba(0,0,0,.9);
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
-    overflow:hidden;
-    -webkit-font-smoothing:antialiased;
-  }
-  .bg{position:fixed; inset:0; z-index:0; pointer-events:none}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sorting Atlas · 看见排序，理解算法</title>
+    <meta
+      name="description"
+      content="九种经典排序，四种代码语言。逐帧探索算法，用同一组数据比较它们的工作方式。"
+    />
+    <meta name="theme-color" content="#101419" />
+    <link rel="canonical" href="https://hellodiyuan.xin/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/atlas.css" />
+  </head>
+  <body>
+    <svg
+      class="icon-library"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <symbol id="i-play" viewBox="0 0 24 24">
+        <path d="m9 5 11 7-11 7Z" />
+      </symbol>
+      <symbol id="i-shuffle" viewBox="0 0 24 24">
+        <path
+          d="m17 3 4 4-4 4M3 7h4l10 10h4M17 13l4 4-4 4M3 17h4l3-3M14 10l3-3h4"
+        />
+      </symbol>
+      <symbol id="i-reset" viewBox="0 0 24 24">
+        <path d="M4 10a8 8 0 1 1 1 8M4 4v6h6" />
+      </symbol>
+      <symbol id="i-prev" viewBox="0 0 24 24">
+        <path d="M6 5v14m12-14L8 12l10 7Z" />
+      </symbol>
+      <symbol id="i-next" viewBox="0 0 24 24">
+        <path d="M18 5v14M6 5l10 7-10 7Z" />
+      </symbol>
+      <symbol id="i-code" viewBox="0 0 24 24">
+        <path d="m8 7-5 5 5 5m8-10 5 5-5 5m-5 3 2-16" />
+      </symbol>
+      <symbol id="i-expand" viewBox="0 0 24 24">
+        <path d="M4 9V4h5m11 11v5h-5m5-11V4h-5M4 15v5h5" />
+      </symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24">
+        <path
+          d="M4 9h3l4-4v14l-4-4H4Zm12-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"
+        />
+      </symbol>
+      <symbol id="i-ruler" viewBox="0 0 24 24">
+        <path d="M3 7h18v10H3Zm4 0v4m5-4v6m5-6v4" />
+      </symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h14m-6-6 6 6-6 6" />
+      </symbol>
+      <symbol id="i-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M6 18 18 6" />
+      </symbol>
+      <symbol id="i-compare" viewBox="0 0 24 24">
+        <path d="M4 20V10h4v10m4 0V4h4v16m4 0V7h2v13" />
+      </symbol>
+      <symbol id="i-keyboard" viewBox="0 0 24 24">
+        <rect x="2" y="5" width="20" height="14" rx="3" />
+        <path d="M6 9h1m4 0h1m4 0h1M6 12h1m4 0h1m4 0h1M7 16h10" />
+      </symbol>
+    </svg>
 
-  /* ---------- frame ---------- */
-  .frame{
-    position:relative; z-index:1; height:100vh;
-    display:flex; flex-direction:column; gap:14px;
-    padding:22px 26px 20px;
-  }
+    <header class="topbar">
+      <a class="wordmark" href="./" aria-label="Sorting Atlas 首页"
+        ><span class="brand-mark" aria-hidden="true"
+          ><i></i><i></i><i></i><i></i></span
+        ><span
+          >Sorting<span class="wordmark-light">Atlas</span><sup>®</sup></span
+        ></a
+      >
+      <span class="topbar-divider"></span
+      ><span class="topbar-label">排序算法图鉴</span>
+      <nav class="topbar-actions" aria-label="工具">
+        <button class="text-button" id="compareOpen">
+          <svg class="icon"><use href="#i-compare" /></svg><span>算法对照</span>
+        </button>
+        <button
+          class="icon-button"
+          id="helpOpen"
+          aria-label="查看操作指南和快捷键"
+          title="操作指南与快捷键"
+        >
+          <svg class="icon"><use href="#i-keyboard" /></svg>
+        </button>
+      </nav>
+    </header>
 
-  /* ---------- masthead ---------- */
-  .masthead{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex:none}
-  .brand{display:flex; gap:16px; align-items:flex-start; min-width:0}
-  .mark{width:38px; height:38px; flex:none; margin-top:4px}
-  .titles{min-width:0}
-  h1{
-    margin:0; font-family:"Times New Roman",Times,"Songti SC","Source Han Serif SC",serif;
-    font-size:15px; font-weight:400; letter-spacing:.34em; color:var(--dim);
-    text-transform:uppercase; white-space:nowrap;
-  }
-  .hero{
-    margin:6px 0 0; font-family:"Times New Roman",Times,"Songti SC","Source Han Serif SC",serif;
-    font-size:clamp(26px,3.2vw,42px); font-weight:400; line-height:1; letter-spacing:.01em;
-    white-space:nowrap;
-  }
-  .hero .amp{color:var(--accent); font-style:italic; padding:0 .06em}
-  .sub{margin:10px 0 0; font-size:11.5px; color:var(--dim); letter-spacing:.04em; line-height:1.5}
-  .sub b{color:var(--accent); font-weight:400}
+    <main class="page">
+      <section class="intro" aria-labelledby="pageTitle">
+        <div>
+          <p class="eyebrow">
+            <span class="tiny-dot"></span> THE ALGORITHM PLAYGROUND
+          </p>
+          <h1 id="pageTitle">看见排序，<span>理解算法。</span></h1>
+        </div>
+        <p class="intro-note">
+          让抽象的逻辑变得具体。<br />一组数字，九种路径，每一步都看得见。<span
+            >探索 · 观察 · 理解 <svg class="icon"><use href="#i-arrow" /></svg
+          ></span>
+        </p>
+      </section>
 
-  .masthead-right{display:flex; gap:12px; align-items:center; flex:none}
-  .chip{
-    display:inline-flex; align-items:center; gap:7px;
-    height:30px; padding:0 12px; border:1px solid var(--line2); border-radius:999px;
-    font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:#b9b6ad;
-    background:rgba(255,255,255,.02); white-space:nowrap;
-  }
-  .chip svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6}
-  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
-  .live .dot{animation:pulse 2.4s ease-in-out infinite}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+      <section class="laboratory" aria-label="排序算法交互工作台">
+        <aside class="sidebar">
+          <div class="sidebar-heading">
+            <span>探索算法</span><span class="mono dim">09</span>
+          </div>
+          <nav
+            class="algos"
+            id="algos"
+            role="tablist"
+            aria-label="选择排序算法"
+            aria-orientation="vertical"
+          ></nav>
+          <div class="sidebar-foot">
+            <span class="tiny-dot"></span>
+            <p>不同的思路，<br />同一个有序的终点。</p>
+            <span class="sidebar-ornament" aria-hidden="true">↗</span>
+          </div>
+        </aside>
 
-  /* ---------- console / stage ---------- */
-  .console{
-    flex:1; min-height:0; display:flex; flex-direction:column;
-    background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);
-    border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:var(--shadow);
-  }
-  .algos{
-    display:flex; align-items:center; gap:6px; padding:12px 14px;
-    border-bottom:1px solid var(--line); overflow-x:auto; flex:none;
-  }
-  .algos{scrollbar-width:none}
-  .algos::-webkit-scrollbar{height:0}
-  .algo{
-    position:relative; flex:none; cursor:pointer;
-    font:inherit; font-size:12px; letter-spacing:.04em;
-    background:transparent; border:1px solid transparent; border-radius:8px;
-    color:var(--dim); padding:7px 13px; transition:.16s ease;
-  }
-  .algo .cn{font-size:10px; color:var(--dim2); margin-left:6px; letter-spacing:.02em}
-  .algo:hover{color:var(--ink); background:rgba(255,255,255,.04)}
-  .algo[aria-selected="true"]{color:var(--ink);
-    border-color:var(--ac); background:rgba(255,255,255,.05);
-    border-color:color-mix(in srgb,var(--ac),transparent 55%); background:color-mix(in srgb,var(--ac),transparent 90%)}
-  .algo[aria-selected="true"]::after{content:""; position:absolute; left:13px; right:13px; bottom:-13px; height:2px; background:var(--ac); box-shadow:0 0 12px var(--ac)}
+        <div class="work" id="work">
+          <section class="pane" aria-label="动画与播放控制">
+            <header class="visual-header">
+              <div>
+                <p class="section-label">
+                  VISUALIZATION <span id="algoIndex">/ 01</span>
+                </p>
+                <h2 id="heroName">
+                  冒泡排序 <span class="algo-english">Bubble Sort</span>
+                </h2>
+              </div>
+              <span class="status" id="statusBadge"
+                ><i class="dot"></i
+                ><span id="stateText" role="status">就绪</span></span
+              >
+            </header>
+            <div class="dataset-bar">
+              <label for="distribution">初始数据</label
+              ><select id="distribution">
+                <option value="random">随机排列</option>
+                <option value="nearly">近乎有序</option>
+                <option value="reverse">完全逆序</option>
+                <option value="duplicates">大量重复</option>
+                <option value="custom" disabled>自定义数组</option></select
+              ><button class="quiet-button" id="customOpen">
+                自定义 <span aria-hidden="true">↗</span></button
+              ><span class="dataset-count mono" id="chipAlgo">n = 32</span>
+            </div>
+            <div class="stage" id="stage">
+              <canvas
+                id="cv"
+                aria-label="排序动画，浅蓝表示正在操作，蓝色表示已排定"
+              ></canvas
+              ><span class="badge" id="badge"></span
+              ><span class="tick mono" id="tick">frame 0000</span>
+              <div class="canvas-loading" id="canvasLoading" hidden>
+                正在生成时间轴…
+              </div>
+            </div>
+            <div class="chart-legend">
+              <span><i class="legend-dot neutral"></i>待排序</span
+              ><span><i class="legend-dot active"></i>正在操作</span
+              ><span><i class="legend-dot sorted"></i>已排定</span
+              ><span class="legend-tip">悬停查看数值</span>
+            </div>
+            <div class="metrics" aria-label="当前帧统计">
+              <div>
+                <span>比较次数</span><strong id="metricComparisons">0</strong
+                ><small>COMPARISONS</small>
+              </div>
+              <div>
+                <span>交换次数</span><strong id="metricSwaps">0</strong
+                ><small>SWAPS</small>
+              </div>
+              <div>
+                <span>写入次数</span><strong id="metricWrites">0</strong
+                ><small>WRITES</small>
+              </div>
+              <div>
+                <span>排序进度</span
+                ><strong id="metricProgress">0<em>%</em></strong
+                ><small id="metricFrame">0 / 0 帧</small>
+              </div>
+            </div>
+            <div class="timeline">
+              <label class="sr-only" for="timeline">浏览排序进度</label
+              ><input
+                id="timeline"
+                type="range"
+                min="0"
+                max="0"
+                step="1"
+                value="0"
+                aria-label="浏览排序进度"
+              />
+              <div class="timeline-labels">
+                <span class="mono">START</span><span>拖动探索每一步</span
+                ><span class="mono">FINISH</span>
+              </div>
+            </div>
+            <div class="transport">
+              <div class="playback-buttons">
+                <button
+                  class="btn primary"
+                  id="play"
+                  aria-label="开始播放"
+                  title="播放 / 暂停（空格）"
+                >
+                  <svg class="icon" id="playIcon"><use href="#i-play" /></svg
+                  ><span id="playLabel">开始播放</span></button
+                ><button
+                  class="btn"
+                  id="prevFrame"
+                  aria-label="上一步"
+                  title="上一步（←）"
+                >
+                  <svg class="icon"><use href="#i-prev" /></svg></button
+                ><button
+                  class="btn"
+                  id="nextFrame"
+                  aria-label="下一步"
+                  title="下一步（→）"
+                >
+                  <svg class="icon"><use href="#i-next" /></svg></button
+                ><button
+                  class="btn"
+                  id="restart"
+                  aria-label="从头开始"
+                  title="从头开始"
+                >
+                  <svg class="icon"><use href="#i-reset" /></svg></button
+                ><button
+                  class="btn"
+                  id="shuffle"
+                  aria-label="重新生成数据"
+                  title="重新生成数据（R）"
+                >
+                  <svg class="icon"><use href="#i-shuffle" /></svg>
+                </button>
+              </div>
+              <div class="view-buttons">
+                <button
+                  class="btn"
+                  id="sound"
+                  aria-pressed="false"
+                  aria-label="排序声音"
+                  title="排序声音（M）"
+                >
+                  <svg class="icon"><use href="#i-volume" /></svg></button
+                ><button
+                  class="btn"
+                  id="ruler"
+                  aria-pressed="true"
+                  aria-label="数组下标标尺"
+                  title="数组下标标尺"
+                >
+                  <svg class="icon"><use href="#i-ruler" /></svg></button
+                ><button
+                  class="btn"
+                  id="codeToggle"
+                  aria-pressed="true"
+                  aria-label="显示代码"
+                  title="显示代码（C）"
+                >
+                  <svg class="icon"><use href="#i-code" /></svg>
+                </button>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="field">
+                <label for="speed">播放速度</label
+                ><input
+                  type="range"
+                  id="speed"
+                  min="0"
+                  max="1"
+                  step="0.001"
+                  value="0.6"
+                /><output id="speedOut" for="speed">35 步/秒</output>
+              </div>
+              <div class="field">
+                <label for="size">数据规模</label
+                ><input
+                  type="range"
+                  id="size"
+                  min="2"
+                  max="180"
+                  step="1"
+                  value="32"
+                /><output id="sizeOut" for="size">32</output>
+              </div>
+            </div>
+          </section>
 
-  .stage{position:relative; flex:1; min-height:260px}
-  canvas{display:block; width:100%; height:100%; cursor:crosshair}
+          <aside class="codepane" id="codepane" aria-label="算法代码与执行位置">
+            <div class="codebar">
+              <span class="code-icon"
+                ><svg class="icon"><use href="#i-code" /></svg></span
+              ><span class="cname"
+                ><b id="codeName">Bubble Sort</b
+                ><em id="codeMeta">跟随每一步执行</em></span
+              ><span class="lnchip" id="lineChip">行 —</span
+              ><button
+                class="expand btn"
+                id="expandCode"
+                type="button"
+                aria-pressed="false"
+                title="全屏查看代码（F）"
+                aria-label="全屏查看代码"
+              >
+                <svg class="icon"><use href="#i-expand" /></svg>
+              </button>
+            </div>
+            <div
+              class="langbar"
+              id="langbar"
+              role="tablist"
+              aria-label="代码语言"
+            ></div>
+            <div class="code-tools">
+              <span><i class="tiny-dot"></i> 实时执行位置</span
+              ><button class="quiet-button" id="copyCode">复制代码</button>
+            </div>
+            <div
+              class="codewrap"
+              id="codeWrap"
+              tabindex="0"
+              aria-label="算法代码，可滚动阅读"
+            >
+              <div class="lines-pane" aria-hidden="true">
+                <div class="lines" id="codeLines"></div>
+              </div>
+              <div class="code-main" id="codeMain">
+                <span class="ln-hl" id="lnHl" aria-hidden="true"></span>
+                <pre class="code" id="codePre"></pre>
+              </div>
+              <div class="codeglow" id="codeGlow" aria-hidden="true"></div>
+            </div>
+            <div class="codefoot">
+              <span class="cf-item"><i>当前行</i><b id="cfLine">—</b></span
+              ><span class="cf-item"><i>执行次数</i><b id="cfHits">0</b></span
+              ><span class="cf-item"><i>热点行</i><b id="cfHot">—</b></span
+              ><span class="cf-item progress-item"
+                ><i>进度</i><b id="cfProg">0%</b></span
+              >
+            </div>
+            <p class="cf-note" id="cfNote">点击播放，跟随算法执行。</p>
+          </aside>
+        </div>
+      </section>
 
-  /* ---------- two-pane work area + live code panel ---------- */
-  .work{flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) clamp(360px,36%,620px)}
-  .work.nocode{grid-template-columns:minmax(0,1fr)}
-  .work.nocode .codepane{display:none}
-  .pane{display:flex; flex-direction:column; min-width:0; min-height:0}
+      <section class="learning" aria-labelledby="learningTitle">
+        <div class="learning-about">
+          <p class="section-label">BEHIND THE ALGORITHM</p>
+          <h2 id="learningTitle">从相邻的两项开始。</h2>
+          <p id="algorithmAbout"></p>
+          <div class="complexity-tags">
+            <span id="timeComplexity"></span><span id="spaceComplexity"></span
+            ><span id="stability"></span>
+          </div>
+        </div>
+        <div class="step-insight">
+          <p class="section-label">
+            <span class="tiny-dot"></span> THIS MOMENT
+          </p>
+          <h3>这一刻，发生了什么？</h3>
+          <p id="currentHint">准备好了。点击播放，或用方向键逐步探索。</p>
+          <div class="shortcut-note">
+            <kbd>←</kbd><kbd>→</kbd><span>逐步探索</span
+            ><span class="shortcut-divider"></span><kbd>Space</kbd
+            ><span>播放 / 暂停</span>
+          </div>
+        </div>
+      </section>
+      <footer class="page-footer">
+        <span class="footer-brand">Sorting Atlas</span
+        ><span>从无序到有序，从观察到理解。</span
+        ><span class="mono">9 ALGORITHMS · 4 LANGUAGES</span>
+      </footer>
+    </main>
 
-  .codepane{display:flex; flex-direction:column; min-width:0; border-left:1px solid var(--line); background:linear-gradient(180deg,rgba(255,255,255,.024),rgba(0,0,0,.22))}
-  .codebar{
-    display:flex; align-items:center; gap:10px; padding:7px 14px; border-bottom:1px solid var(--line);
-    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace; flex:none;
-  }
-  .dots{display:flex; gap:4px; flex:none}
-  .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15)}
-  .dots i:first-child{background:var(--accent); box-shadow:0 0 8px var(--accent)}
-  .cname{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
-  .cname b{font-weight:400; font-size:11.5px; letter-spacing:.1em; color:var(--ink); text-transform:uppercase}
-  .cname em{font-style:normal; font-size:9.5px; letter-spacing:.05em; color:var(--dim2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .lnchip{flex:none; font-size:10px; letter-spacing:.1em; color:var(--accent); border:1px solid rgba(255,255,255,.14); border-radius:999px; padding:3px 9px; font-variant-numeric:tabular-nums}
-  .expand{position:relative; flex:none; width:26px; height:26px; display:grid; place-items:center; cursor:pointer;
-    background:transparent; border:1px solid var(--line2); border-radius:7px; color:var(--dim); transition:.15s ease}
-  /* a finger needs a bigger target than the icon looks */
-  .expand::after{content:""; position:absolute; inset:-8px -8px -8px -8px}
-  .expand:hover{color:var(--ink); background:rgba(255,255,255,.06)}
-  .expand svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-  .expand[aria-pressed="true"]{color:var(--accent); border-color:color-mix(in srgb,var(--accent),transparent 55%)}
-  /* full-screen code: the panel covers the work area so the listing gets real height */
-  .codepane.expanded{position:fixed; inset:0; z-index:50; border:0; background:var(--bg2); border-radius:0}
-  .codepane.expanded .codewrap{min-height:0}
-  .codepane.expanded .codeglow{display:none}
-  body.codefull{overflow:hidden}
-
-  .langbar{
-    display:flex; align-items:center; gap:5px; padding:5px 14px 6px;
-    border-bottom:1px solid var(--line); flex:none; overflow-x:auto; scrollbar-width:none;
-  }
-  .langbar::-webkit-scrollbar{height:0}
-  .lang{
-    font:inherit; font-size:11px; letter-spacing:.09em; cursor:pointer; white-space:nowrap;
-    background:transparent; border:1px solid transparent; border-radius:7px;
-    color:var(--dim); padding:5px 11px; transition:.15s ease;
-  }
-  .lang:hover{color:var(--ink); background:rgba(255,255,255,.05)}
-  .lang[aria-selected="true"]{
-    color:var(--ink); border-color:var(--accent); background:rgba(255,255,255,.05);
-    border-color:color-mix(in srgb,var(--accent),transparent 55%);
-    background:color-mix(in srgb,var(--accent),transparent 90%);
-  }
-  .lang em{font-style:normal; font-size:9.5px; color:var(--dim2); margin-left:5px; letter-spacing:.02em}
-
-  .codewrap{
-    position:relative; flex:1; min-height:0; overflow:hidden;
-    padding:12px 10px 12px 6px; font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
-    font-size:11px; letter-spacing:-.02em; line-height:1.8;
-  }
-  .lines-pane{position:absolute; left:0; top:12px; bottom:12px; width:46px; overflow:hidden; z-index:2; pointer-events:none}
-  .lines{position:absolute; left:0; right:9px; top:0; text-align:right; color:var(--dim2); font-variant-numeric:tabular-nums; will-change:transform;
-    transition:transform .13s cubic-bezier(.3,.8,.35,1)}
-  .lines span{display:block; height:var(--lh)}
-  .lines span.cnt{color:var(--accent); opacity:.72}
-  .code-main{position:absolute; left:36px; right:0; top:12px; bottom:12px; overflow:hidden}
-  .code{margin:0; display:block; padding-left:14px; color:#ded9cf; position:relative; z-index:1; will-change:transform;
-    transition:transform .13s cubic-bezier(.3,.8,.35,1)}
-  .code .cl{display:block; height:var(--lh); white-space:pre; overflow:hidden}
-  /* comments sit on their own aligned column without padding the text with spaces */
-  .code .tk-c{display:inline}
-  .code .cl.on{color:#fff}
-  .ln-hl{
-    position:absolute; left:0; right:0; top:0; height:var(--lh); z-index:0; border-radius:5px;
-    background:linear-gradient(90deg,rgba(240,161,60,.20),rgba(240,161,60,.06) 78%,transparent);
-    background:linear-gradient(90deg,color-mix(in srgb,var(--accent),transparent 78%),color-mix(in srgb,var(--accent),transparent 94%) 78%,transparent);
-    box-shadow:inset 2px 0 0 var(--accent);
-    opacity:0; transition:transform .09s linear,opacity .18s ease;
-  }
-  .ln-hl.on{opacity:1}
-  .codeglow{
-    position:absolute; inset:auto 0 0 0; height:72px; pointer-events:none;
-    background:linear-gradient(180deg,transparent,rgba(14,17,23,.95));
-  }
-  .tk-c{color:var(--dim2); font-style:italic}
-  .tk-k{color:var(--accent2)}
-  .tk-f{color:var(--accent)}
-  .tk-n{color:#e0b273}
-
-  .codefoot{display:flex; gap:14px; padding:7px 14px; border-top:1px solid var(--line); flex:none; flex-wrap:wrap; align-items:center}
-  .cf-note{display:none; flex:1 0 100%; font-size:10.5px; line-height:1.5; color:var(--dim);
-    border-top:1px dashed rgba(255,255,255,.09); padding-top:7px; margin-top:2px}
-  .cf-item{display:flex; align-items:baseline; gap:6px; min-width:0}
-  .cf-item i{font-style:normal; font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim2)}
-  .cf-item b{font-weight:400; font-size:12px; color:var(--accent); font-variant-numeric:tabular-nums}
-  .stage .tick{
-    position:absolute; left:16px; bottom:12px; font-size:10px; color:var(--dim2);
-    letter-spacing:.16em; text-transform:uppercase; pointer-events:none;
-  }
-  .stage .badge{
-    position:absolute; left:16px; top:14px; font-size:10.5px; letter-spacing:.16em;
-    text-transform:uppercase; color:var(--dim2); pointer-events:none;
-  }
-
-  /* ---------- transport ---------- */
-  .transport{
-    display:flex; align-items:center; gap:18px; padding:12px 16px; min-width:0;
-    border-top:1px solid var(--line); flex:none; background:rgba(0,0,0,.22);
-  }
-  .btn{
-    width:36px;height:36px;flex:none; display:grid; place-items:center; cursor:pointer;
-    background:transparent; color:#c9c6bd; border:1px solid var(--line2); border-radius:10px; transition:.15s ease;
-  }
-  .btn:hover{color:var(--ink); border-color:var(--line2); background:rgba(255,255,255,.06)}
-  .btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-  .primary{
-    background:var(--accent); border-color:transparent; color:#12100c; width:44px;height:44px; border-radius:13px;
-    box-shadow:0 10px 30px -8px rgba(240,161,60,.55);
-    box-shadow:0 10px 30px -8px color-mix(in srgb,var(--accent),transparent 35%);
-  }
-  .primary:hover{background:var(--accent2); color:#12100c}
-  .primary svg{width:17px;height:17px;stroke-width:2}
-
-  .field{display:flex; align-items:center; gap:11px; min-width:0; flex-shrink:1}
-  .field > span{
-    font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--dim2); white-space:nowrap;
-  }
-  .field output{font-size:11px; color:var(--accent); min-width:44px; text-align:right; font-variant-numeric:tabular-nums}
-  input[type=range]{
-    -webkit-appearance:none; appearance:none; width:100%; min-width:70px; height:22px; background:transparent; cursor:pointer;
-    /* the drag belongs to the slider: stop the browser panning the page or reading a
-       left-edge drag as a "go back" gesture (which is what broke the drag on a phone) */
-    touch-action:none; overscroll-behavior:contain;
-  }
-  input[type=range]::-webkit-slider-runnable-track{height:2px; border-radius:2px; background:linear-gradient(90deg,var(--accent) var(--p,50%),rgba(255,255,255,.13) var(--p,50%))}
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; width:13px;height:13px; margin-top:-5.5px; border-radius:50%;
-    background:#0b0d12; border:2px solid var(--accent); box-shadow:0 0 0 3px rgba(240,161,60,.18);
-    box-shadow:0 0 0 3px color-mix(in srgb,var(--accent),transparent 82%);
-  }
-  input[type=range]::-moz-range-track{height:2px;border-radius:2px;background:rgba(255,255,255,.13)}
-  input[type=range]::-moz-range-progress{height:2px;border-radius:2px;background:var(--accent)}
-  input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:#0b0d12;border:2px solid var(--accent)}
-
-  .seg{display:flex; gap:2px; padding:2px; border:1px solid var(--line); border-radius:9px; background:rgba(0,0,0,.3)}
-  .seg button{
-    font:inherit; font-size:10.5px; letter-spacing:.06em; color:var(--dim2); cursor:pointer;
-    background:transparent; border:0; border-radius:7px; padding:5px 9px; transition:.15s ease; white-space:nowrap;
-  }
-  .seg button:hover{color:var(--ink)}
-  .seg button[aria-pressed="true"]{background:rgba(240,161,60,.16); color:var(--accent);
-    background:color-mix(in srgb,var(--accent),transparent 84%)}
-  .btn[aria-pressed="true"]{color:var(--accent); border-color:rgba(240,161,60,.45);
-    border-color:color-mix(in srgb,var(--accent),transparent 55%)}
-  .sep{width:1px; height:26px; background:var(--line); flex:none}
-
-  /* ---------- metrics ---------- */
-
-  /* ---------- short desktop windows: spend the header's height on code ---------- */
-  @media (min-width:901px) and (max-height:960px){
-    .frame{padding:14px 22px 14px; gap:10px}
-    .masthead{align-items:center}
-    .mark{width:30px;height:30px;margin-top:0}
-    h1{font-size:11.5px; letter-spacing:.28em}
-    .hero{font-size:26px; margin-top:3px}
-    .sub{display:none}
-  }
-  @media (min-width:901px) and (max-height:820px){
-    .hero{font-size:22px}
-    .masthead-right .chip{height:26px}
-  }
-
-  /* ---------- responsive ---------- */
-  @media (max-width:1180px){
-    .work{grid-template-columns:minmax(0,1fr) clamp(330px,40%,460px)}
-  }
-  @media (max-width:1000px){
-    .sub{display:none}
-  }
-  @media (max-width:900px){
-    /* stack: animation on top, code beneath; the console shrinks so the metric row fits too */
-    .frame{height:auto; min-height:100vh; overflow:visible}
-    body{overflow:auto}
-    .console{flex:0 1 auto; min-height:0}
-    .work{grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto}
-    .codepane{border-left:0; border-top:1px solid var(--line); min-height:260px}
-    .codewrap{flex:1 1 auto; min-height:210px}
-    .stage{min-height:300px}
-  }
-  @media (max-width:900px){
-    /* tablets are touch devices too: pills and controls need finger-sized targets */
-    .algo{min-height:40px; display:inline-flex; align-items:center}
-    .lang{min-height:40px; min-width:50px; display:inline-flex; align-items:center; justify-content:center}
-    .expand{width:34px; height:34px}
-    .btn{width:40px;height:40px}
-    .btn.primary{width:44px;height:44px}
-    .transport{padding:6px 14px}
-    .transport input[type=range]{height:40px}
-    .transport input[type=range]::-webkit-slider-runnable-track{height:4px; border-radius:2px}
-    .transport input[type=range]::-webkit-slider-thumb{
-      width:22px; height:22px; margin-top:-9px;
-      box-shadow:0 0 0 4px color-mix(in srgb,var(--accent),transparent 84%);
-    }
-    .transport input[type=range]::-moz-range-track{height:4px}
-    .transport input[type=range]::-moz-range-thumb{width:20px;height:20px}
-  }
-  /* ---- phones only: tablets are wide enough for most of the normal layout ---- */
-  @media (max-width:620px){
-    /* --- header: stack the status chips under the title so nothing crowds it --- */
-    .masthead{flex-direction:column; align-items:stretch; gap:9px}
-    .brand{gap:11px}
-    .mark{width:30px;height:30px;margin-top:2px}
-    .titles{min-width:0}
-    h1{font-size:11px; letter-spacing:.26em}
-    .hero{font-size:24px; white-space:normal; overflow-wrap:anywhere}
-    .masthead-right{width:100%; justify-content:flex-start; gap:7px; flex-wrap:wrap}
-    .masthead-right .chip{height:26px; padding:0 10px; font-size:9.5px; letter-spacing:.1em}
-    .masthead-right .chip:not(.live){display:inline-flex; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:52%}
-    .stage{min-height:236px}
-    /* --- algorithm + language pills need a real thumb target on a phone --- */
-    .algos{padding:9px 11px; gap:5px}
-    .algo{min-height:44px; display:inline-flex; align-items:center; padding:0 13px; font-size:12px}
-    .algo[aria-selected="true"]::after{bottom:-9px}
-    /* a phone fits ~45 mono chars at 11.5px but lines run to 93, so shrink the type,
-       trim the gutter, drop the comment column into the footer, and pan if needed */
-    .codewrap{font-size:10px; line-height:1.62; overflow-x:auto; overflow-y:hidden;
-      -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain}
-    .lines-pane{width:34px}
-    .code-main{left:28px}
-    .code{padding-left:7px}
-    .codebar{padding:6px 10px}
-    .cname b{font-size:10.5px; letter-spacing:.06em}
-    .cname em{display:none}
-    .lnchip{font-size:9.5px; padding:2px 7px}
-    .expand{width:34px; height:34px}
-    .expand svg{width:15px; height:15px}
-    .langbar{padding:4px 10px 5px}
-    .lang{min-height:34px; min-width:50px; display:inline-flex; align-items:center; justify-content:center; padding:0 13px; font-size:11px}
-    .lang em{display:none}
-    .codefoot{gap:6px 12px; padding:6px 10px}
-    .cf-item b{font-size:11px}
-    .cf-item i{font-size:8.5px; letter-spacing:.12em}
-    .cf-note{display:block; padding-top:5px; margin-top:0}
-    /* buttons go on the first row (next to the animation), sliders get a full-width row each */
-    .transport{flex-wrap:wrap; gap:10px; padding:11px 12px 13px; align-items:center}
-    .transport .sep{display:none}
-    #play{order:1}
-    #shuffle{order:2}
-    #sound{order:3}
-    #ruler{order:4}
-    #codeToggle{order:5}
-    .transport .btn{width:42px;height:42px;border-radius:12px}
-    .transport .btn.primary{width:48px;height:48px}
-    .transport .field{
-      order:10; flex:1 1 100% !important; min-width:0;
-      display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center;
-      gap:0 10px; padding:1px 0;
-    }
-    .transport .field > span{font-size:10px; letter-spacing:.14em}
-    .transport .field output{min-width:52px; text-align:right; font-size:11.5px}
-    /* a phone finger needs a real target: 42px tall row, 26px thumb */
-    .transport input[type=range]{height:42px; min-width:0}
-    .transport input[type=range]::-webkit-slider-runnable-track{height:5px; border-radius:3px}
-    .transport input[type=range]::-webkit-slider-thumb{
-      width:26px; height:26px; margin-top:-10.5px; border-width:2.5px;
-      box-shadow:0 0 0 5px color-mix(in srgb,var(--accent),transparent 84%);
-    }
-    .transport input[type=range]::-moz-range-track{height:5px; border-radius:3px}
-    .transport input[type=range]::-moz-range-thumb{width:24px;height:24px;border-width:2.5px}
-  }
-  @media (max-width:760px){
-    .frame{padding:14px 13px 13px; gap:10px}
-    h1{letter-spacing:.2em; font-size:12px}
-    .mark{width:30px;height:30px}
-    .masthead-right .chip:not(.live){display:none}
-    .seg.hide-sm{display:none}
-  }
-</style>
-</head>
-<body>
-<div class="bg" aria-hidden="true">
-<svg width="100%" height="100%" preserveAspectRatio="none">
-  <defs>
-    <pattern id="grid" width="46" height="46" patternUnits="userSpaceOnUse">
-      <path d="M46 0H0V46" fill="none" stroke="rgba(255,255,255,.035)" stroke-width="1"/>
-    </pattern>
-    <radialGradient id="glowA" cx="50%" cy="50%">
-      <stop offset="0%" stop-color="#f0a13c" stop-opacity=".16"/><stop offset="100%" stop-color="#f0a13c" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glowB" cx="50%" cy="50%">
-      <stop offset="0%" stop-color="#3fbfc9" stop-opacity=".13"/><stop offset="100%" stop-color="#3fbfc9" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="100%" height="100%" fill="url(#grid)"/>
-  <ellipse cx="14%" cy="-4%" rx="620" ry="430" fill="url(#glowA)"/>
-  <ellipse cx="92%" cy="104%" rx="700" ry="460" fill="url(#glowB)"/>
-  <rect x="0" y="0" width="100%" height="1" fill="rgba(240,161,60,.35)"/>
-</svg>
-</div>
-
-<div class="frame">
-  <header class="masthead">
-    <div class="brand">
-      <svg class="mark" viewBox="0 0 40 40" aria-hidden="true">
-        <rect x="3" y="21" width="5" height="16" rx="1.6" fill="#3fbfc9"/>
-        <rect x="11" y="13" width="5" height="24" rx="1.6" fill="#f0a13c"/>
-        <rect x="19" y="26" width="5" height="11" rx="1.6" fill="#e8688a"/>
-        <rect x="27" y="6" width="5" height="31" rx="1.6" fill="#8b8bf0"/>
-      </svg>
-      <div class="titles">
-        <h1>Sorting&nbsp;Atlas</h1>
-        <p class="hero" id="heroName">冒泡排序<span class="amp">/</span>Bubble Sort</p>
-        <p class="sub">九种经典排序的逐帧解剖 · <b id="subMeta">O(n²) · 相邻比较 · 稳定</b></p>
-      </div>
-    </div>
-    <div class="masthead-right">
-      <span class="chip live"><i class="dot"></i><span id="stateText">就绪</span></span>
-      <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg><span id="chipCmp">0 次比较</span></span>
-      <span class="chip"><svg viewBox="0 0 24 24"><path d="M4 18h16M4 12h10M4 6h6"/></svg><span id="chipAlgo">n = 60</span></span>
-    </div>
-  </header>
-
-  <main class="console">
-    <nav class="algos" id="algos" role="tablist" aria-label="选择排序算法"></nav>
-    <div class="work" id="work">
-    <section class="pane">
-    <div class="stage" id="stage">
-      <canvas id="cv" aria-label="排序动画画布"></canvas>
-      <div class="badge" id="badge">Bubble Sort</div>
-      <div class="tick" id="tick">frame 0000</div>
-    </div>
-    <div class="transport">
-      <button class="btn primary" id="play" aria-label="播放 / 暂停">
-        <svg id="playIcon" viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z" fill="currentColor" stroke="none"/></svg>
-      </button>
-      <button class="btn" id="shuffle" aria-label="重新洗牌">
-        <svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-      </button>
-      <div class="sep"></div>
-      <div class="field grow" style="flex:1 1 130px">
-        <span>速度</span>
-        <input type="range" id="speed" min="0" max="1" step="0.001" value="0.6" aria-label="速度" />
-        <output id="speedOut" for="speed">16 步/秒</output>
-      </div>
-      <div class="field grow" style="flex:1 1 120px">
-        <span>数量</span>
-        <input type="range" id="size" min="8" max="180" step="1" value="60" aria-label="数据规模" />
-        <output id="sizeOut" for="size">60</output>
-      </div>
-      <div class="sep"></div>
-      <div class="seg hide-sm" role="group" aria-label="柱形样式">
-        <button data-style="round" aria-pressed="true">圆角</button>
-        <button data-style="thin" aria-pressed="false">细线</button>
-        <button data-style="sharp" aria-pressed="false">直角</button>
-      </div>
-      <button class="btn" id="sound" aria-pressed="false" aria-label="声音">
-        <svg viewBox="0 0 24 24"><path d="M4 9h3l4-4v14l-4-4H4zM16.5 8.5a5 5 0 010 7"/></svg>
-      </button>
-      <button class="btn" id="ruler" aria-pressed="true" aria-label="时间标尺">
-        <svg viewBox="0 0 24 24"><path d="M3 8h18v8H3zM7 8v3M11 8v5M15 8v3M19 8v5"/></svg>
-      </button>
-      <button class="btn" id="codeToggle" aria-pressed="true" aria-label="显示代码" title="显示 / 隐藏代码面板">
-        <svg viewBox="0 0 24 24"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg>
-      </button>
-    </div>
-    </section>
-
-    <aside class="codepane" id="codepane" aria-label="算法代码与执行位置">
-      <div class="codebar">
-        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="cname"><b id="codeName">Bubble Sort</b><em id="codeMeta">O(n²) · 相邻比较 · 稳定</em></span>
-        <span class="lnchip" id="lineChip">行 —</span>
-        <button class="expand" id="expandCode" type="button" aria-pressed="false"
-                title="全屏查看代码" aria-label="全屏查看代码">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 15v5h-5M20 9V4h-5M4 15v5h5"/></svg>
+    <dialog id="customDialog" aria-labelledby="customTitle">
+      <div class="dialog-header">
+        <p class="section-label">YOUR DATA, YOUR EXPERIMENT</p>
+        <button class="btn" data-close aria-label="关闭">
+          <svg class="icon"><use href="#i-close" /></svg>
         </button>
       </div>
-      <div class="langbar" id="langbar" role="tablist" aria-label="代码语言"></div>
-      <div class="codewrap" id="codeWrap">
-        <div class="lines-pane" aria-hidden="true">
-          <div class="lines" id="codeLines"></div>
+      <h2 id="customTitle">试试你自己的数组。</h2>
+      <p class="dialog-description">
+        输入 2–180
+        个正整数（1–999），用逗号或空格分隔。切换算法时，这组数据会保持不变。
+      </p>
+      <form id="customForm">
+        <label for="customValues">待排序的数字</label
+        ><textarea
+          id="customValues"
+          rows="4"
+          placeholder="例如：9, 2, 7, 1, 8, 3, 6, 4, 5"
+          aria-describedby="customError"
+        ></textarea>
+        <p id="customError" class="form-error" role="alert" hidden></p>
+        <div class="dialog-footer">
+          <button type="button" class="text-button" data-close>取消</button
+          ><button type="submit" class="primary action-button">
+            载入数组 <svg class="icon"><use href="#i-arrow" /></svg>
+          </button>
         </div>
-        <div class="code-main" id="codeMain">
-          <span class="ln-hl" id="lnHl" aria-hidden="true"></span>
-          <pre class="code" id="codePre"></pre>
+      </form>
+    </dialog>
+    <dialog
+      id="compareDialog"
+      class="compare-dialog"
+      aria-labelledby="compareTitle"
+    >
+      <div class="dialog-header">
+        <p class="section-label">ONE DATASET, NINE PERSPECTIVES</p>
+        <button class="btn" data-close aria-label="关闭">
+          <svg class="icon"><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <h2 id="compareTitle">同一组数据，不同的路径。</h2>
+      <p class="dialog-description" id="compareDescription"></p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">算法</th>
+              <th scope="col">平均时间</th>
+              <th scope="col">额外空间</th>
+              <th scope="col">稳定性</th>
+              <th scope="col">比较</th>
+              <th scope="col">交换</th>
+              <th scope="col">写入</th>
+            </tr>
+          </thead>
+          <tbody id="compareBody"></tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        统计来自当前数组的完整执行轨迹。比较、交换、写入是不同操作，不能直接等同于运行时间。
+      </p>
+    </dialog>
+    <dialog id="helpDialog" aria-labelledby="helpTitle">
+      <div class="dialog-header">
+        <p class="section-label">A LITTLE GUIDE</p>
+        <button class="btn" data-close aria-label="关闭">
+          <svg class="icon"><use href="#i-close" /></svg>
+        </button>
+      </div>
+      <h2 id="helpTitle">慢一点，也能看得更清楚。</h2>
+      <p class="dialog-description">
+        先选一种算法，点击播放。拖动时间轴回看某一步，代码高亮会跟着你走。切换数据分布，观察算法在不同输入下的表现。
+      </p>
+      <dl class="shortcut-list">
+        <div>
+          <dt>播放 / 暂停</dt>
+          <dd><kbd>Space</kbd></dd>
         </div>
-        <div class="codeglow" id="codeGlow" aria-hidden="true"></div>
-      </div>
-      <div class="codefoot">
-        <span class="cf-item"><i>当前行</i><b id="cfLine">—</b></span>
-        <span class="cf-item"><i>该行已执行</i><b id="cfHits">0</b></span>
-        <span class="cf-item"><i>热点行</i><b id="cfHot">—</b></span>
-        <span class="cf-item"><i>进度</i><b id="cfProg">0%</b></span>
-        <span class="cf-note" id="cfNote"></span>
-      </div>
-    </aside>
-    </div>
-  </main>
-
-</div>
-
-<script>
-(function(){
-'use strict';
-
-/* ============================================================
-   1. Algorithm registry
-   ============================================================ */
-const ALGOS = {
-  bubble: {
-    name:'冒泡排序', en:'Bubble Sort', ac:'#3fbfc9', ac2:'#9ce7ef', short:'Bubble',
-    note:'O(n²) · 相邻比较 · 稳定',
-    about:'反复走访数列，比较相邻两项并交换逆序对。每一轮结束，当前最大值如气泡般浮到末尾。带提前退出：整轮无交换即已有序。',
-    cmpHint:'两两相邻比较 · 逆序即交换'
-  },
-  insertion: {
-    name:'插入排序', en:'Insertion Sort', ac:'#8fd14f', ac2:'#c7f08a', short:'Insertion',
-    note:'O(n²) 最坏 · O(n) 近有序 · 稳定',
-    about:'像整理扑克牌：把当前元素向左插入到已排序前缀的正确位置，右侧元素依次右移。近乎有序时几乎是线性时间。',
-    cmpHint:'与前缀元素逐个比较 · 记录待插入值'
-  },
-  selection: {
-    name:'选择排序', en:'Selection Sort', ac:'#4d8bf5', ac2:'#9dbcff', short:'Selection',
-    note:'O(n²) · 每轮仅一次交换 · 不稳定',
-    about:'每轮在未排序区间中扫描最小值，与区间首元素交换。比较次数固定为 n(n−1)/2，但交换次数最少（最多 n−1 次）。',
-    cmpHint:'扫描未排序区间 · 追踪最小值下标'
-  },
-  shell: {
-    name:'希尔排序', en:'Shell Sort', ac:'#b07cf0', ac2:'#d8b8ff', short:'Shell',
-    note:'O(n^1.3) 经验 · Ciura 增量 · 不稳定',
-    about:'插入排序的加强版：先用较大的增量做远距离插入，让元素大步跳到大致位置，再逐步缩小增量做精细整理。',
-    cmpHint:'按增量 gap 分组跳跃式插入'
-  },
-  merge: {
-    name:'归并排序', en:'Merge Sort', ac:'#f0a13c', ac2:'#ffd79a', short:'Merge',
-    note:'O(n log n) 稳定 · O(n) 辅助空间',
-    about:'分治：把数组一分为二递归排序，再把两个有序序列线性合并。下方细条是正在合并的临时缓冲区。',
-    cmpHint:'比较两段有序序列的头部 · 取较小者'
-  },
-  quick: {
-    name:'快速排序', en:'Quick Sort', ac:'#e8688a', ac2:'#ffa8bd', short:'Quick',
-    note:'O(n log n) 平均 · 三数取中 · 不稳定',
-    about:'选定基准 pivot，把小于它的元素扫到左侧，再对左右两段递归。采用三数取中法降低在有序数据上退化的风险。',
-    cmpHint:'围绕 pivot 划分 · 双指针向内收拢'
-  },
-  heap: {
-    name:'堆排序', en:'Heap Sort', ac:'#f2c14e', ac2:'#ffe79a', short:'Heap',
-    note:'O(n log n) · 原地 · 不稳定',
-    about:'先把数组原地建成大顶堆（父节点 ≥ 子节点），然后反复把堆顶最大值换到末尾并重新下沉调整。',
-    cmpHint:'父子节点比较 · 逐层下沉'
-  },
-  radix: {
-    name:'基数排序', en:'Radix LSD', ac:'#3fc9a0', ac2:'#9bf0d6', short:'Radix',
-    note:'O(d·n) · 非比较排序 · 稳定',
-    about:'不比较元素：按个位、十位、百位依次把数字分发进 10 个桶，再按桶序收回。底部光条即当前正在使用的桶。',
-    cmpHint:'按位分发入桶 · 桶内保持原序'
-  },
-  cocktail: {
-    name:'鸡尾酒排序', en:'Cocktail Shaker', ac:'#ff8a5c', ac2:'#ffbe9e', short:'Shaker',
-    note:'O(n²) 最坏 · 双向冒泡 · 稳定',
-    about:'双向冒泡：先从左往右把最大值送到右端，再从右往左把最小值送到左端，每次往返把未排序区间两端各收紧一格。',
-    cmpHint:'往返双向扫描 · 区间两端同时收缩'
-  }
-};
-const ORDER = ['bubble','insertion','selection','shell','merge','quick','heap','radix','cocktail'];
-
-/* ============================================================
-   1b. Source code for the panel: 9 algorithms x 4 languages
-   Each entry: {code:[lines], steps:{stepId: lineNumber}}
-   ============================================================ */
-const LANGS = {
- "bubble": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "for (let pass = 0; pass < n - 1; pass++) {            // 每一轮把最大值送到右端",
-    "  let swapped = false;                               // 本轮是否发生过交换",
-    "  for (let i = 0; i < n - 1 - pass; i++) {",
-    "    cmp++;                                           // 比较 a[i] 与 a[i+1]",
-    "    if (a[i] > a[i + 1]) {                           // 逆序 → 交换",
-    "      const t = a[i]; a[i] = a[i + 1]; a[i + 1] = t;",
-    "      swp++; wrt += 2; swapped = true;",
-    "    }",
-    "  }",
-    "  sorted.add(n - 1 - pass);                          // 本轮最大值已经就位",
-    "  if (!swapped) break;                               // 提前退出：整轮无交换即已有序",
-    "}",
-    "report(a, n, cmp, swp, wrt);                         // 交给动画播放"
-   ],
-   "steps": {
-    "swap": 17,
-    "mark": 21
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "for p in range(n - 1):                               # 每一轮把最大值送到右端",
-    "    swapped = False                                  # 本轮是否发生过交换",
-    "    for i in range(n - 1 - p):",
-    "        cmp += 1                                     # 比较 a[i] 与 a[i+1]",
-    "        if a[i] > a[i + 1]:                          # 逆序 → 交换",
-    "            a[i], a[i + 1] = a[i + 1], a[i]",
-    "            swp += 1; wrt += 2; swapped = True",
-    "    sorted_pos.add(n - 1 - p)                        # 本轮最大值已经就位",
-    "    if not swapped:                                  # 提前退出：整轮无交换即已有序",
-    "        break",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "swap": 14,
-    "mark": 16
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "for (int pass = 0; pass < n - 1; pass++) {           /* 每一轮把最大值送到右端 */",
-    "    int swapped = 0;                                 /* 本轮是否发生过交换 */",
-    "    for (int i = 0; i < n - 1 - pass; i++) {",
-    "        cmp++;                                       /* 比较 a[i] 与 a[i+1] */",
-    "        if (a[i] > a[i + 1]) {                       /* 逆序 → 交换 */",
-    "            int t = a[i]; a[i] = a[i + 1]; a[i + 1] = t;",
-    "            swp++; wrt += 2; swapped = 1;",
-    "        }",
-    "    }",
-    "    printf(\"pos %d\\n\", n - 1 - pass);               /* 本轮最大值已经就位 */",
-    "    if (!swapped) break;                             /* 提前退出：整轮无交换即已有序 */",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);                /* 交给动画播放 */"
-   ],
-   "steps": {
-    "swap": 21,
-    "mark": 25
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    for (int pass = 0; pass < n - 1; pass++) {        // 每一轮把最大值送到右端",
-    "        boolean swapped = false;                      // 本轮是否发生过交换",
-    "        for (int i = 0; i < n - 1 - pass; i++) {",
-    "            cmp++;                                    // 比较 a[i] 与 a[i+1]",
-    "            if (a[i] > a[i + 1]) {                    // 逆序 → 交换",
-    "                int t = a[i];",
-    "                a[i] = a[i + 1];",
-    "                a[i + 1] = t;",
-    "                swp++; wrt += 2; swapped = true;",
-    "            }",
-    "        }",
-    "        sortedPos.add(n - 1 - pass);                  // 本轮最大值已经就位",
-    "        if (!swapped) break;                          // 提前退出：整轮无交换即已有序",
-    "    }",
-    "    report(a, n, cmp, swp, wrt);  // 交给动画播放"
-   ],
-   "steps": {
-    "swap": 16,
-    "mark": 22
-   }
-  }
- },
- "insertion": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "for (let i = 1; i < n; i++) {",
-    "  let j = i;                                         // 把 a[i] 向左挪到正确位置",
-    "  while (j > 0) {",
-    "    cmp++;                                           // 与左边相邻元素比较",
-    "    if (a[j - 1] > a[j]) {                           // 比它大就交换",
-    "      const t = a[j]; a[j] = a[j - 1]; a[j - 1] = t;",
-    "      swp++; wrt += 2;",
-    "      j--;",
-    "    } else break;                                    // 已到正确位置",
-    "  }",
-    "  if (j === 0) wrt += 0;                             // 插入到位",
-    "}",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "key": 13,
-    "shift": 17,
-    "place": 22
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "for i in range(1, n):",
-    "    j = i                                        # 把 a[i] 向左挪到正确位置",
-    "    while j > 0:",
-    "        cmp += 1                                 # 与左边相邻元素比较",
-    "        if a[j - 1] > a[j]:                      # 比它大就交换",
-    "            a[j - 1], a[j] = a[j], a[j - 1]",
-    "            swp += 1; wrt += 2",
-    "            j -= 1",
-    "        else:",
-    "            break                                # 已到正确位置",
-    "    if j == 0: wrt += 0                          # 插入到位",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "key": 10,
-    "shift": 14,
-    "place": 19
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "for (int i = 1; i < n; i++) {",
-    "    int j = i;                                  /* 把 a[i] 向左挪到正确位置 */",
-    "    while (j > 0) {",
-    "        cmp++;                                  /* 与左边相邻元素比较 */",
-    "        if (a[j - 1] > a[j]) {                  /* 比它大就交换 */",
-    "            swap(j - 1, j);",
-    "            swp++; wrt += 2;",
-    "            j--;",
-    "        } else break;                           /* 已到正确位置 */",
-    "    }",
-    "    if (j == 0) wrt += 0;                       /* 插入到位 */",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "key": 17,
-    "shift": 21,
-    "place": 26
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    for (int i = 1; i < n; i++) {",
-    "        int j = i;                              // 把 a[i] 向左挪到正确位置",
-    "        while (j > 0) {",
-    "            cmp++;                              // 与左边相邻元素比较",
-    "            if (a[j - 1] > a[j]) {              // 比它大就交换",
-    "                swap(a, j - 1, j);",
-    "                swp++; wrt += 2;",
-    "                j--;",
-    "            } else break;                       // 已到正确位置",
-    "        }",
-    "        if (j == 0) wrt += 0;                   // 插入到位",
-    "    }",
-    "    report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "key": 12,
-    "shift": 16,
-    "place": 21
-   }
-  }
- },
- "selection": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "for (let i = 0; i < n - 1; i++) {                    // 依次填好第 i 个位置",
-    "  let m = i;                                         // m 追踪未排序区间的最小值",
-    "  for (let j = i + 1; j < n; j++) {",
-    "    cmp++;                                           // 扫描未排序区间",
-    "    if (a[j] < a[m]) m = j;                          // 找到更小的就更新 m",
-    "  }",
-    "  if (m !== i) {                                     // 最小值不在首位才交换",
-    "    const t = a[i]; a[i] = a[m]; a[m] = t;",
-    "    swp++; wrt += 2;",
-    "  }",
-    "  sorted.add(i);                                     // 第 i 位就位",
-    "}",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "swap": 19,
-    "mark": 22
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "for i in range(n - 1):                               # 依次填好第 i 个位置",
-    "    m = i                                            # m 追踪未排序区间的最小值",
-    "    for j in range(i + 1, n):",
-    "        cmp += 1                                     # 扫描未排序区间",
-    "        if a[j] < a[m]:",
-    "            m = j                                    # 找到更小的就更新 m",
-    "    if m != i:                                       # 最小值不在首位才交换",
-    "        a[i], a[m] = a[m], a[i]",
-    "        swp += 1; wrt += 2",
-    "    sorted_pos.add(i)                                # 第 i 位就位",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "swap": 16,
-    "mark": 18
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "for (int i = 0; i < n - 1; i++) {                    /* 依次填好第 i 个位置 */",
-    "    int m = i;                                       /* m 追踪未排序区间的最小值 */",
-    "    for (int j = i + 1; j < n; j++) {",
-    "        cmp++;                                       /* 扫描未排序区间 */",
-    "        if (a[j] < a[m]) m = j;                      /* 找到更小的就更新 m */",
-    "    }",
-    "    if (m != i) {                                    /* 最小值不在首位才交换 */",
-    "        swap(i, m);",
-    "        swp++; wrt += 2;",
-    "    }",
-    "    printf(\"pos %d\\n\", i);                          /* 第 i 位就位 */",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "swap": 23,
-    "mark": 26
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    for (int i = 0; i < n - 1; i++) {                // 依次填好第 i 个位置",
-    "        int m = i;                                   // m 追踪未排序区间的最小值",
-    "        for (int j = i + 1; j < n; j++) {",
-    "            cmp++;                                   // 扫描未排序区间",
-    "            if (a[j] < a[m]) m = j;                  // 找到更小的就更新 m",
-    "        }",
-    "        if (m != i) {                                // 最小值不在首位才交换",
-    "            swap(a, i, m);",
-    "            swp++; wrt += 2;",
-    "        }",
-    "        sortedPos.add(i);                            // 第 i 位就位",
-    "    }",
-    "    report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "swap": 18,
-    "mark": 21
-   }
-  }
- },
- "shell": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "const GAPS = [701, 301, 132, 57, 23, 10, 4, 1];      // Ciura 增量序列",
-    "for (let g = 0; g < GAPS.length; g++) {              // 由大到小逐步缩小增量",
-    "  const gap = GAPS[g];",
-    "  if (gap >= n) continue;                            // 增量不能超过数组长度",
-    "  for (let i = gap; i < n; i++) {",
-    "    let j = i;",
-    "    while (j >= gap) {",
-    "      cmp++;                                         // 比较相隔 gap 的两个元素",
-    "      if (a[j - gap] > a[j]) {                       // 相隔 gap 的逆序对",
-    "        const t = a[j]; a[j] = a[j - gap]; a[j - gap] = t;",
-    "        swp++; wrt += 2;                             // 跨 gap 交换，大步后移",
-    "        j -= gap;",
-    "      } else break;",
-    "    }",
-    "    if (j >= gap) wrt += 0;                          // 该组内已就位",
-    "  }",
-    "}",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "gap": 16,
-    "shift": 21,
-    "put": 26
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "GAPS = [701, 301, 132, 57, 23, 10, 4, 1]             # Ciura 增量序列",
-    "for gap in GAPS:                                     # 由大到小逐步缩小增量",
-    "    if gap >= n:                                     # 增量不能超过数组长度",
-    "        continue",
-    "    for i in range(gap, n):",
-    "        j = i",
-    "        while j >= gap:",
-    "            cmp += 1                                 # 比较相隔 gap 的两个元素",
-    "            if a[j - gap] > a[j]:                    # 相隔 gap 的逆序对",
-    "                a[j], a[j - gap] = a[j - gap], a[j]",
-    "                swp += 1; wrt += 2                   # 跨 gap 交换，大步后移",
-    "                j -= gap",
-    "            else:",
-    "                break",
-    "        if j >= gap: wrt += 0                    # 该组内已就位",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "gap": 13,
-    "shift": 18,
-    "put": 23
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "int GAPS[8] = {701, 301, 132, 57, 23, 10, 4, 1};    /* Ciura 增量序列 */",
-    "for (int g = 0; g < 8; g++) {                        /* 由大到小逐步缩小增量 */",
-    "    int gap = GAPS[g];",
-    "    if (gap >= n) continue;                          /* 增量不能超过数组长度 */",
-    "    for (int i = gap; i < n; i++) {",
-    "        int j = i;",
-    "        while (j >= gap) {",
-    "            cmp++;                                   /* 比较相隔 gap 的两个元素 */",
-    "            if (a[j - gap] > a[j]) {                 /* 相隔 gap 的逆序对 */",
-    "                swap(j, j - gap);",
-    "                swp++; wrt += 2;                     /* 跨 gap 交换，大步后移 */",
-    "                j -= gap;",
-    "            } else break;",
-    "        }",
-    "        if (j >= gap) wrt += 0;                      /* 该组内已就位 */",
-    "    }",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "gap": 20,
-    "shift": 25,
-    "put": 30
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    int[] GAPS = {701, 301, 132, 57, 23, 10, 4, 1};  // Ciura 增量序列",
-    "    for (int g = 0; g < GAPS.length; g++) {          // 由大到小逐步缩小增量",
-    "        int gap = GAPS[g];",
-    "        if (gap >= n) continue;                      // 增量不能超过数组长度",
-    "        for (int i = gap; i < n; i++) {",
-    "            int j = i;",
-    "            while (j >= gap) {",
-    "                cmp++;                               // 比较相隔 gap 的两个元素",
-    "                if (a[j - gap] > a[j]) {             // 相隔 gap 的逆序对",
-    "                    swap(a, j, j - gap);",
-    "                    swp++; wrt += 2;                 // 跨 gap 交换，大步后移",
-    "                    j -= gap;",
-    "                } else break;",
-    "            }",
-    "            if (j >= gap) wrt += 0;                  // 该组内已就位",
-    "        }",
-    "    }",
-    "    System.out.println(cmp + \" \" + swp + \" \" + wrt);"
-   ],
-   "steps": {
-    "gap": 15,
-    "shift": 20,
-    "put": 25
-   }
-  }
- },
- "merge": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "function mergeSort(lo, hi) {                          // 排序左闭右开区间 [lo, hi)",
-    "  if (hi - lo < 2) return;                           // 长度 0 或 1 天然有序",
-    "  const mid = (lo + hi) >> 1;                        // 拆分成两半",
-    "  mergeSort(lo, mid);                                // 递归排序左半",
-    "  mergeSort(mid, hi);                                // 递归排序右半",
-    "  let i = lo, j = mid, k = lo;",
-    "  while (i < mid && j < hi) {                        // 合并两段有序序列",
-    "    cmp++;                                           // 比较两段的头部",
-    "    if (a[i] <= a[j]) buf[k++] = a[i++];             // 取较小者，保证稳定",
-    "    else              buf[k++] = a[j++];",
-    "    wrt++;",
-    "  }",
-    "  while (i < mid) buf[k++] = a[i++];                 // 收尾：左段剩余",
-    "  while (j < hi)  buf[k++] = a[j++];                 // 收尾：右段剩余",
-    "  for (let t = lo; t < hi; t++) a[t] = buf[t];       // 缓冲区整体写回主数组",
-    "}",
-    "buf = new Array(Math.max(n, 1)).fill(0);",
-    "mergeSort(0, n);",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "split": 14,
-    "left": 15,
-    "right": 16,
-    "pick": 20,
-    "back": 26
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "def merge_sort(a, buf, lo, hi, cmp, swp, wrt):       # 排序左闭右开区间 [lo, hi)",
-    "    if hi - lo < 2:                                  # 长度 0 或 1 天然有序",
-    "        return cmp, swp, wrt",
-    "    mid = (lo + hi) // 2                             # 拆分成两半",
-    "    cmp, swp, wrt = merge_sort(a, buf, lo, mid, cmp, swp, wrt)   # 递归排序左半",
-    "    cmp, swp, wrt = merge_sort(a, buf, mid, hi, cmp, swp, wrt)   # 递归排序右半",
-    "    i, j, k = lo, mid, lo",
-    "    while i < mid and j < hi:                        # 合并两段有序序列",
-    "        cmp += 1                                     # 比较两段的头部",
-    "        if a[i] <= a[j]:                             # 取较小者，保证稳定",
-    "            buf[k] = a[i]; i += 1",
-    "        else:",
-    "            buf[k] = a[j]; j += 1",
-    "        k += 1; wrt += 1",
-    "    while i < mid:",
-    "        buf[k] = a[i]; i += 1; k += 1                # 收尾：左段剩余",
-    "    while j < hi:",
-    "        buf[k] = a[j]; j += 1; k += 1                # 收尾：右段剩余",
-    "    for t in range(lo, hi):",
-    "        a[t] = buf[t]                                # 缓冲区整体写回主数组",
-    "    return cmp, swp, wrt",
-    "buf = [0] * max(n, 1)",
-    "cmp, swp, wrt = merge_sort(a, buf, 0, n, cmp, swp, wrt)",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "split": 12,
-    "left": 13,
-    "right": 14,
-    "pick": 18,
-    "back": 27
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "static void merge_sort(int lo, int hi) {             /* 排序左闭右开区间 [lo, hi) */",
-    "    if (hi - lo < 2) return;                         /* 长度 0 或 1 天然有序 */",
-    "    int mid = (lo + hi) / 2;                         /* 拆分成两半 */",
-    "    merge_sort(lo, mid);                             /* 递归排序左半 */",
-    "    merge_sort(mid, hi);                             /* 递归排序右半 */",
-    "    int i = lo, j = mid, k = lo;",
-    "    while (i < mid && j < hi) {                      /* 合并两段有序序列 */",
-    "        cmp++;                                       /* 比较两段的头部 */",
-    "        if (a[i] <= a[j]) buf[k++] = a[i++];         /* 取较小者，保证稳定 */",
-    "        else              buf[k++] = a[j++];",
-    "        wrt++;",
-    "    }",
-    "    while (i < mid) buf[k++] = a[i++];               /* 收尾：左段剩余 */",
-    "    while (j < hi)  buf[k++] = a[j++];               /* 收尾：右段剩余 */",
-    "    for (int t = lo; t < hi; t++) a[t] = buf[t];     /* 缓冲区整体写回主数组 */",
-    "}",
-    "merge_sort(0, n);",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "split": 18,
-    "left": 19,
-    "right": 20,
-    "pick": 24,
-    "back": 30
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    mergeSort(a, 0, n);",
-    "    report(a, n, cmp, swp, wrt);",
-    "}",
-    "",
-    "static void mergeSort(int[] a, int lo, int hi) {     // 排序左闭右开区间 [lo, hi)",
-    "    if (hi - lo < 2) return;                         // 长度 0 或 1 天然有序",
-    "    int mid = (lo + hi) >>> 1;                       // 拆分成两半",
-    "    mergeSort(a, lo, mid);                           // 递归排序左半",
-    "    mergeSort(a, mid, hi);                           // 递归排序右半",
-    "    int i = lo, j = mid, k = lo;",
-    "    while (i < mid && j < hi) {                      // 合并两段有序序列",
-    "        cmp++;                                       // 比较两段的头部",
-    "        if (a[i] <= a[j]) buf[k++] = a[i++];         // 取较小者，保证稳定",
-    "        else              buf[k++] = a[j++];",
-    "        wrt++;",
-    "    }",
-    "    while (i < mid) buf[k++] = a[i++];               // 收尾：左段剩余",
-    "    while (j < hi)  buf[k++] = a[j++];               // 收尾：右段剩余",
-    "    for (int t = lo; t < hi; t++) a[t] = buf[t];     // 缓冲区整体写回主数组",
-    "}"
-   ],
-   "steps": {
-    "split": 17,
-    "left": 18,
-    "right": 19,
-    "pick": 23,
-    "back": 29
-   }
-  }
- },
- "quick": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "function quickSort(lo, hi) {",
-    "  if (lo >= hi) return;                              // 长度 0 或 1 天然有序",
-    "  const mid = (lo + hi) >> 1;",
-    "  if (a[mid] < a[lo]) { const t = a[mid]; a[mid] = a[lo]; a[lo] = t; }   // 三数取中",
-    "  if (a[hi]  < a[lo]) { const t = a[hi];  a[hi]  = a[lo]; a[lo] = t; }",
-    "  if (a[hi]  < a[mid]) { const t = a[hi]; a[hi] = a[mid]; a[mid] = t; }",
-    "  const p = a[mid];                                  // pivot = 三数中位数",
-    "  let i = lo, j = hi;",
-    "  while (i <= j) {",
-    "    while (a[i] < p) i++;                            // 左侧找到 ≥ pivot 的元素",
-    "    while (a[j] > p) j--;                            // 右侧找到 ≤ pivot 的元素",
-    "    if (i <= j) {",
-    "      const t = a[i]; a[i] = a[j]; a[j] = t;",
-    "      swp++; wrt += 2; i++; j--;",
-    "    }",
-    "  }",
-    "  quickSort(lo, j); quickSort(i, hi);                // 递归左右两段",
-    "}",
-    "quickSort(0, n - 1);",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "pivot": 18,
-    "left": 21,
-    "right": 22,
-    "swap": 24,
-    "split": 28,
-    "recurse": 28
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "def quick_sort(a, lo, hi, cmp, swp, wrt):",
-    "    if lo >= hi:                                     # 长度 0 或 1 天然有序",
-    "        return cmp, swp, wrt",
-    "    mid = (lo + hi) // 2",
-    "    if a[mid] < a[lo]: a[lo], a[mid] = a[mid], a[lo]      # 三数取中",
-    "    if a[hi]  < a[lo]: a[lo], a[hi]  = a[hi],  a[lo]",
-    "    if a[hi]  < a[mid]: a[mid], a[hi] = a[hi], a[mid]",
-    "    p = a[mid]                                       # pivot = 三数中位数",
-    "    i, j = lo, hi",
-    "    while i <= j:",
-    "        while a[i] < p:",
-    "            i += 1                                   # 左侧找到 ≥ pivot 的元素",
-    "        while a[j] > p:",
-    "            j -= 1                                   # 右侧找到 ≤ pivot 的元素",
-    "        if i <= j:",
-    "            a[i], a[j] = a[j], a[i]",
-    "            swp += 1; wrt += 2; i += 1; j -= 1",
-    "    cmp, swp, wrt = quick_sort(a, lo, j, cmp, swp, wrt)",
-    "    cmp, swp, wrt = quick_sort(a, i, hi, cmp, swp, wrt)   # 递归左右两段",
-    "    return cmp, swp, wrt",
-    "cmp, swp, wrt = quick_sort(a, 0, n - 1, cmp, swp, wrt)",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "pivot": 16,
-    "left": 19,
-    "right": 21,
-    "swap": 24,
-    "split": 26,
-    "recurse": 27
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "static void quick_sort(int lo, int hi) {",
-    "    if (lo >= hi) return;                            /* 长度 0 或 1 天然有序 */",
-    "    int mid = (lo + hi) / 2;",
-    "    if (a[mid] < a[lo]) swap(lo, mid);               /* 三数取中 */",
-    "    if (a[hi]  < a[lo]) swap(lo, hi);",
-    "    if (a[hi]  < a[mid]) swap(mid, hi);",
-    "    int p = a[mid];                                  /* pivot = 三数中位数 */",
-    "    int i = lo, j = hi;",
-    "    while (i <= j) {",
-    "        while (a[i] < p) i++;                        /* 左侧找到 ≥ pivot 的元素 */",
-    "        while (a[j] > p) j--;                        /* 右侧找到 ≤ pivot 的元素 */",
-    "        if (i <= j) {",
-    "            swap(i, j);",
-    "            swp++; wrt += 2; i++; j--;",
-    "        }",
-    "    }",
-    "    quick_sort(lo, j); quick_sort(i, hi);            /* 递归左右两段 */",
-    "}",
-    "quick_sort(0, n - 1);",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "pivot": 22,
-    "left": 25,
-    "right": 26,
-    "swap": 28,
-    "split": 32,
-    "recurse": 32
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    quickSort(a, 0, n - 1);",
-    "    report(a, n, cmp, swp, wrt);",
-    "}",
-    "",
-    "static void quickSort(int[] a, int lo, int hi) {",
-    "    if (lo >= hi) return;                            // 长度 0 或 1 天然有序",
-    "    int mid = (lo + hi) >>> 1;",
-    "    if (a[mid] < a[lo]) swap(a, lo, mid);            // 三数取中",
-    "    if (a[hi]  < a[lo]) swap(a, lo, hi);",
-    "    if (a[hi]  < a[mid]) swap(a, mid, hi);",
-    "    int p = a[mid];                                  // pivot = 三数中位数",
-    "    int i = lo, j = hi;",
-    "    while (i <= j) {",
-    "        while (a[i] < p) i++;                        // 左侧找到 ≥ pivot 的元素",
-    "        while (a[j] > p) j--;                        // 右侧找到 ≤ pivot 的元素",
-    "        if (i <= j) {",
-    "            swap(a, i, j);",
-    "            swp++; wrt += 2; i++; j--;",
-    "        }",
-    "    }",
-    "    quickSort(a, lo, j); quickSort(a, i, hi);        // 递归左右两段",
-    "}"
-   ],
-   "steps": {
-    "pivot": 21,
-    "left": 24,
-    "right": 25,
-    "swap": 27,
-    "split": 31,
-    "recurse": 31
-   }
-  }
- },
- "heap": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "function sift(root, end) {                            // 让 a[root] 在 [0, end] 内下沉",
-    "  while (true) {",
-    "    let child = root * 2 + 1;                         // 左孩子下标",
-    "    if (child > end) break;",
-    "    if (child + 1 <= end) { cmp++; if (a[child] < a[child + 1]) child++; }",
-    "    cmp++;                                            // 父节点与较大孩子比较",
-    "    if (a[root] < a[child]) {                         // 父 < 子 → 违反大顶堆",
-    "      const t = a[root]; a[root] = a[child]; a[child] = t;",
-    "      swp++; wrt += 2; root = child;",
-    "    } else break;                                     // 已满足堆性质",
-    "  }",
-    "  return;",
-    "}",
-    "for (let i = (n - 2) >> 1; i >= 0; i--) sift(i, n - 1);   // 阶段一：建大顶堆",
-    "for (let end = n - 1; end > 0; end--) {",
-    "  const t = a[0]; a[0] = a[end]; a[end] = t;          // 堆顶最大值换到末尾",
-    "  swp++; wrt += 2;",
-    "  sorted.add(end);",
-    "  if (end - 1 > 0) sift(0, end - 1);                  // 阶段二：缩小堆并重新下沉",
-    "}",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "siftcmp": 18,
-    "siftend": 23,
-    "build": 25,
-    "swap": 27,
-    "mark": 29
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "def sift(a, root, end, cmp, swp, wrt):                # 让 a[root] 在 [0, end] 内下沉",
-    "    while True:",
-    "        child = root * 2 + 1                          # 左孩子下标",
-    "        if child > end:",
-    "            break",
-    "        if child + 1 <= end:",
-    "            cmp += 1",
-    "            if a[child] < a[child + 1]:",
-    "                child += 1",
-    "        cmp += 1                                      # 父节点与较大孩子比较",
-    "        if a[root] < a[child]:                        # 父 < 子 → 违反大顶堆",
-    "            a[root], a[child] = a[child], a[root]",
-    "            swp += 1; wrt += 2; root = child",
-    "        else:",
-    "            break                                     # 已满足堆性质",
-    "    return cmp, swp, wrt",
-    "for i in range((n - 2) // 2, -1, -1):                 # 阶段一：建大顶堆",
-    "    cmp, swp, wrt = sift(a, i, n - 1, cmp, swp, wrt)",
-    "for end in range(n - 1, 0, -1):",
-    "    a[0], a[end] = a[end], a[0]                       # 堆顶最大值换到末尾",
-    "    swp += 1; wrt += 2",
-    "    sorted_pos.add(end)",
-    "    if end - 1 > 0:",
-    "        cmp, swp, wrt = sift(a, 0, end - 1, cmp, swp, wrt)   # 阶段二：缩小堆并重新下沉",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "siftcmp": 19,
-    "siftend": 24,
-    "build": 25,
-    "swap": 28,
-    "mark": 30
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "static void sift(int root, int end) {                 /* 让 a[root] 在 [0, end] 内下沉 */",
-    "    while (1) {",
-    "        int child = root * 2 + 1;                     /* 左孩子下标 */",
-    "        if (child > end) break;",
-    "        if (child + 1 <= end) {           // 孩子中取较大的那个",
-    "            cmp++;",
-    "            if (a[child] < a[child + 1]) child++;",
-    "        }",
-    "        cmp++;                                        /* 父节点与较大孩子比较 */",
-    "        if (a[root] < a[child]) {                     /* 父 < 子 → 违反大顶堆 */",
-    "            swap(root, child);",
-    "            swp++; wrt += 2; root = child;",
-    "        } else break;                                 /* 已满足堆性质 */",
-    "    }",
-    "    return;",
-    "}",
-    "for (int i = (n - 2) / 2; i >= 0; i--) sift(i, n - 1);   /* 阶段一：建大顶堆 */",
-    "for (int end = n - 1; end > 0; end--) {",
-    "    swap(0, end);                                     /* 堆顶最大值换到末尾 */",
-    "    swp++; wrt += 2;",
-    "    printf(\"pos %d\\n\", end);",
-    "    if (end - 1 > 0) sift(0, end - 1);                /* 阶段二：缩小堆并重新下沉 */",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "siftcmp": 25,
-    "siftend": 30,
-    "build": 32,
-    "swap": 34,
-    "mark": 36
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    heapSort(a, n);",
-    "    report(a, n, cmp, swp, wrt);",
-    "}",
-    "",
-    "static void heapSort(int[] a, int n) {",
-    "    // 阶段一：建大顶堆",
-    "    for (int i = (n - 2) / 2; i >= 0; i--)",
-    "        sift(a, i, n - 1);",
-    "    for (int end = n - 1; end > 0; end--) {",
-    "        swap(a, 0, end);                              // 堆顶最大值换到末尾",
-    "        swp++; wrt += 2;",
-    "        sortedPos.add(end);",
-    "        if (end - 1 > 0) sift(a, 0, end - 1);         // 阶段二：缩小堆并重新下沉",
-    "    }",
-    "}",
-    "",
-    "static void sift(int[] a, int root, int end) {        // 让 a[root] 在 [0, end] 内下沉",
-    "    while (true) {",
-    "        int child = root * 2 + 1;                     // 左孩子下标",
-    "        if (child > end) break;",
-    "        if (child + 1 <= end) {           // 孩子中取较大的那个",
-    "            cmp++;",
-    "            if (a[child] < a[child + 1]) child++;",
-    "        }",
-    "        cmp++;                                        // 父节点与较大孩子比较",
-    "        if (a[root] < a[child]) {                     // 父 < 子 → 违反大顶堆",
-    "            swap(a, root, child);",
-    "            swp++; wrt += 2; root = child;",
-    "        } else break;                                 // 已满足堆性质",
-    "    }",
-    "}"
-   ],
-   "steps": {
-    "build": 16,
-    "swap": 20,
-    "mark": 22,
-    "siftcmp": 36,
-    "siftend": 41
-   }
-  }
- },
- "radix": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "let mx = 0; for (const v of a) if (v > mx) mx = v;",
-    "const digits = String(mx).length;                     // 最大值的位数 = 需要几轮",
-    "for (let d = 0; d < digits; d++) {                    // 从个位开始，逐位分发",
-    "  const buckets = Array.from({ length: 10 }, () => []);",
-    "  for (let i = 0; i < n; i++) {",
-    "    const dig = Math.floor(a[i] / 10 ** d) % 10;      // 取第 d 位数字",
-    "    buckets[dig].push(a[i]); wrt++;                   // 分发进对应的桶",
-    "  }",
-    "  let k = 0;",
-    "  for (let b = 0; b < 10; b++) {                      // 按桶序 0→9 收回",
-    "    for (const v of buckets[b]) {",
-    "      a[k] = v; wrt++;                                // 桶内保持原序 → 稳定",
-    "      k++;",
-    "    }",
-    "  }",
-    "}",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "digit": 13,
-    "bucket": 17,
-    "gather": 23,
-    "pass": 27
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "mx = max(a)",
-    "digits = len(str(mx))                                 # 最大值的位数 = 需要几轮",
-    "for d in range(digits):                               # 从个位开始，逐位分发",
-    "    buckets = [[] for _ in range(10)]",
-    "    for i in range(n):",
-    "        dig = (a[i] // 10 ** d) % 10                  # 取第 d 位数字",
-    "        buckets[dig].append(a[i]); wrt += 1           # 分发进对应的桶",
-    "    k = 0",
-    "    for b in range(10):                               # 按桶序 0→9 收回",
-    "        for v in buckets[b]:",
-    "            a[k] = v; wrt += 1                        # 桶内保持原序 → 稳定",
-    "            k += 1",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "digit": 10,
-    "bucket": 14,
-    "gather": 19,
-    "pass": 21
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "int mx = 0; for (int i = 0; i < n; i++) if (a[i] > mx) mx = a[i];",
-    "int digits = 1; while (mx >= 10) { mx /= 10; digits++; }   /* 最大值的位数 */",
-    "for (int d = 0; d < digits; d++) {                    /* 从个位开始，逐位分发 */",
-    "    int cnt[10] = {0}, bucket[10][MAX];",
-    "    for (int i = 0; i < n; i++) {",
-    "        int pow = 1; for (int t = 0; t < d; t++) pow *= 10;",
-    "        int dig = (a[i] / pow) % 10;                  /* 取第 d 位数字 */",
-    "        bucket[dig][cnt[dig]++] = a[i]; wrt++;        /* 分发进对应的桶 */",
-    "    }",
-    "    int k = 0;",
-    "    for (int b = 0; b < 10; b++) {                    /* 按桶序 0→9 收回 */",
-    "        for (int q = 0; q < cnt[b]; q++) {",
-    "            a[k] = bucket[b][q]; wrt++;               /* 桶内保持原序 → 稳定 */",
-    "            k++;",
-    "        }",
-    "    }",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "digit": 17,
-    "bucket": 21,
-    "gather": 28,
-    "pass": 32
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    int mx = 0;",
-    "    for (int v : a) if (v > mx) mx = v;",
-    "    int digits = String.valueOf(mx).length();         // 最大值的位数 = 需要几轮",
-    "    for (int d = 0; d < digits; d++) {                // 从个位开始，逐位分发",
-    "        int[][] buckets = new int[10][n];",
-    "        int[] cnt = new int[10];",
-    "        for (int i = 0; i < n; i++) {",
-    "            // 取第 d 位数字",
-    "            int dig = (int)(a[i] / Math.pow(10, d)) % 10;",
-    "            buckets[dig][cnt[dig]++] = a[i];  // 分发进桶",
-    "            wrt++;",
-    "        }",
-    "        int k = 0;",
-    "        for (int b = 0; b < 10; b++) {                // 按桶序 0→9 收回",
-    "            for (int q = 0; q < cnt[b]; q++) {",
-    "                a[k] = buckets[b][q]; wrt++;          // 桶内保持原序 → 稳定",
-    "                k++;",
-    "            }",
-    "        }",
-    "    }",
-    "    report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "digit": 13,
-    "bucket": 18,
-    "gather": 26,
-    "pass": 30
-   }
-  }
- },
- "cocktail": {
-  "js": {
-   "code": [
-    "const n = ARR.length;",
-    "let cmp = 0, swp = 0, wrt = 0;",
-    "const a = ARR.slice();                               // 复制一份，不改动原数组",
-    "const sorted = new Set();                            // 已排定的位置",
-    "",
-    "function swap(i, j) {                                // 交换两个元素",
-    "  const t = a[i];",
-    "  a[i] = a[j];",
-    "  a[j] = t;",
-    "}",
-    "",
-    "let lo = 0, hi = n - 1;",
-    "while (lo < hi) {                                     // 未排序区间 [lo, hi]",
-    "  let swapped = false;",
-    "  for (let i = lo; i < hi; i++) {                     // → 向右扫描",
-    "    cmp++;",
-    "    if (a[i] > a[i + 1]) {                            // 把最大值推向 hi",
-    "      const t = a[i]; a[i] = a[i + 1]; a[i + 1] = t;",
-    "      swp++; wrt += 2; swapped = true;",
-    "    }",
-    "  }",
-    "  sorted.add(hi); hi--;                               // 右端就位，区间右缩",
-    "  for (let i = hi; i > lo; i--) {                     // ← 向左扫描",
-    "    cmp++;",
-    "    if (a[i] < a[i - 1]) {                            // 把最小值推向 lo",
-    "      const t = a[i]; a[i] = a[i - 1]; a[i - 1] = t;",
-    "      swp++; wrt += 2; swapped = true;",
-    "    }",
-    "  }",
-    "  sorted.add(lo); lo++;                               // 左端就位，区间左缩",
-    "  if (!swapped) break;                                // 整趟无交换 → 已有序",
-    "}",
-    "report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "fwd": 18,
-    "markhi": 22,
-    "bwd": 26,
-    "marklo": 30
-   }
-  },
-  "py": {
-   "code": [
-    "n = len(ARR)",
-    "a = list(ARR)                                        # 复制一份，不改动原数组",
-    "cmp = swp = wrt = 0",
-    "sorted_pos = set()                                   # 已排定的位置",
-    "",
-    "def swap(i, j):",
-    "    a[i], a[j] = a[j], a[i]",
-    "",
-    "lo, hi = 0, n - 1",
-    "while lo < hi:                                        # 未排序区间 [lo, hi]",
-    "    swapped = False",
-    "    for i in range(lo, hi):                           # → 向右扫描",
-    "        cmp += 1",
-    "        if a[i] > a[i + 1]:                           # 把最大值推向 hi",
-    "            a[i], a[i + 1] = a[i + 1], a[i]",
-    "            swp += 1; wrt += 2; swapped = True",
-    "    sorted_pos.add(hi); hi -= 1                       # 右端就位，区间右缩",
-    "    for i in range(hi, lo, -1):                       # ← 向左扫描",
-    "        cmp += 1",
-    "        if a[i] < a[i - 1]:                           # 把最小值推向 lo",
-    "            a[i], a[i - 1] = a[i - 1], a[i]",
-    "            swp += 1; wrt += 2; swapped = True",
-    "    sorted_pos.add(lo); lo += 1                       # 左端就位，区间左缩",
-    "    if not swapped:                                   # 整趟无交换 → 已有序",
-    "        break",
-    "report(a, cmp, swp, wrt)"
-   ],
-   "steps": {
-    "fwd": 15,
-    "markhi": 17,
-    "bwd": 21,
-    "marklo": 23
-   }
-  },
-  "c": {
-   "code": [
-    "int n = ARR[0];",
-    "int a[MAX];",
-    "for (int i = 0; i < n; i++) a[i] = ARR[i + 1];",
-    "int cmp = 0, swp = 0, wrt = 0;",
-    "",
-    "static void swap(int i, int j){                      /* 交换两个元素 */",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "static void pos_report(int i){                       /* 动画用的位置标记 */",
-    "    printf(\"pos %d\\n\", i);",
-    "}",
-    "",
-    "int lo = 0, hi = n - 1;",
-    "while (lo < hi) {                                     /* 未排序区间 [lo, hi] */",
-    "    int swapped = 0;",
-    "    for (int i = lo; i < hi; i++) {                   /* → 向右扫描 */",
-    "        cmp++;",
-    "        if (a[i] > a[i + 1]) {                        /* 把最大值推向 hi */",
-    "            swap(i, i + 1);",
-    "            swp++; wrt += 2; swapped = 1;",
-    "        }",
-    "    }",
-    "    printf(\"pos %d\\n\", hi); hi--;                    /* 右端就位，区间右缩 */",
-    "    for (int i = hi; i > lo; i--) {                   /* ← 向左扫描 */",
-    "        cmp++;",
-    "        if (a[i] < a[i - 1]) {                        /* 把最小值推向 lo */",
-    "            swap(i, i - 1);",
-    "            swp++; wrt += 2; swapped = 1;",
-    "        }",
-    "    }",
-    "    printf(\"pos %d\\n\", lo); lo++;                    /* 左端就位，区间左缩 */",
-    "    if (!swapped) break;                              /* 整趟无交换 → 已有序 */",
-    "}",
-    "printf(\"%d %d %d\\n\", cmp, swp, wrt);"
-   ],
-   "steps": {
-    "fwd": 22,
-    "markhi": 26,
-    "bwd": 30,
-    "marklo": 34
-   }
-  },
-  "java": {
-   "code": [
-    "static void swap(int[] a, int i, int j){              // 交换两个元素",
-    "    int t = a[i];",
-    "    a[i] = a[j];",
-    "    a[j] = t;",
-    "}",
-    "",
-    "public static void main(String[] args){",
-    "    int n = ARR.length;",
-    "    int[] a = ARR.clone();                           // 复制一份",
-    "",
-    "    int lo = 0, hi = n - 1;",
-    "    while (lo < hi) {                                 // 未排序区间 [lo, hi]",
-    "        boolean swapped = false;",
-    "        for (int i = lo; i < hi; i++) {               // → 向右扫描",
-    "            cmp++;",
-    "            if (a[i] > a[i + 1]) {                    // 把最大值推向 hi",
-    "                swap(a, i, i + 1);",
-    "                swp++; wrt += 2; swapped = true;",
-    "            }",
-    "        }",
-    "        sortedPos.add(hi); hi--;                      // 右端就位，区间右缩",
-    "        for (int i = hi; i > lo; i--) {               // ← 向左扫描",
-    "            cmp++;",
-    "            if (a[i] < a[i - 1]) {                    // 把最小值推向 lo",
-    "                swap(a, i, i - 1);",
-    "                swp++; wrt += 2; swapped = true;",
-    "            }",
-    "        }",
-    "        sortedPos.add(lo); lo++;                      // 左端就位，区间左缩",
-    "        if (!swapped) break;                          // 整趟无交换 → 已有序",
-    "    }",
-    "    report(a, n, cmp, swp, wrt);"
-   ],
-   "steps": {
-    "fwd": 17,
-    "markhi": 21,
-    "bwd": 25,
-    "marklo": 29
-   }
-  }
- }
-};
-
-/* ============================================================
-   2. Generators — each yields frames
-   frame = {a:Array, cmp, swp, wrt, i, j, k, sorted:Set, fin:boolean,
-            hint:string, step:string|null (semantic step, resolved per language),
-            aux:Array|null, auxLabel:string|null, buckets:Array<Array>|null}
-   ============================================================ */
-function push(f, o){ o.a = f.a.slice(); f.out.push(o); }
-
-function* bubbleSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  for(let pass=0; pass<n-1; pass++){
-    let swapped = false;
-    for(let i=0; i<n-1-pass; i++){
-      cmp++;
-      step('swap', {cmp,swp,wrt,sorted:new Set(sorted),i,j:i+1,hint:'比较 a['+i+'] 与 a['+(i+1)+']'});
-      if(a[i] > a[i+1]){
-        const t=a[i]; a[i]=a[i+1]; a[i+1]=t; swp++; wrt+=2; swapped = true;
-        step('mark', {cmp,swp,wrt,sorted:new Set(sorted),i,j:i+1,swap:true,hint:'逆序 → 交换'});
-      }
-    }
-    sorted.add(n-1-pass);
-    step('mark', {cmp,swp,wrt,sorted:new Set(sorted),hint:'第 '+(pass+1)+' 轮结束 · 最大值就位'});
-    if(!swapped){ for(let x=0;x<n;x++) sorted.add(x); break; }
-  }
-  for(let x=0;x<n;x++) sorted.add(x);
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(sorted), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* insertionSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  if(n < 1){ yield {a:[], sorted:new Set(), cmp:0, swp:0, wrt:0, fin:true, step:null, line:null, hint:'空数组无需排序'}; return; }
-  step(null, {cmp,swp,wrt,sorted:new Set([0]),i:0,hint:'首元素视为已排序前缀'});
-  for(let i=1;i<n;i++){
-    step('key', {cmp,swp,wrt,sorted:new Set(),i,j:i,hint:'把 a['+i+'] 向左挪到正确位置'});
-    let j = i;
-    while(j > 0){
-      cmp++;
-      step('shift', {cmp,swp,wrt,sorted:new Set(),i:i,j:j,hint:'比较 a['+(j-1)+'] 与 a['+j+']'});
-      if(a[j-1] > a[j]){
-        const t=a[j]; a[j]=a[j-1]; a[j-1]=t;      /* 相邻交换：动画可平移 */
-        swp++; wrt+=2;
-        step('shift', {cmp,swp,wrt,sorted:new Set(),i:i,j:j-1,swap:true,hint:'逆序 → 相邻交换，继续左移'});
-        j--;
-      } else break;
-    }
-    step('place', {cmp,swp,wrt,sorted:new Set(),i:i,j:j,hint:'已到正确位置'});
-  }
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(a.map((_,x)=>x)), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* selectionSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  for(let i=0;i<n-1;i++){
-    let m = i;
-    for(let j=i+1;j<n;j++){
-      cmp++;
-      step('swap', {cmp,swp,wrt,sorted:new Set(sorted),i:j,j:m,k:i,hint:'比较 a['+j+'] 与当前最小 a['+m+']'});
-      if(a[j] < a[m]) m = j;
-    }
-    if(m !== i){
-      const t=a[i]; a[i]=a[m]; a[m]=t; swp++; wrt+=2;
-      step('mark', {cmp,swp,wrt,sorted:new Set(sorted),i:i,j:m,swap:true,k:i,hint:'最小值换到区间首位'});
-    }
-    sorted.add(i);
-    step('mark', {cmp,swp,wrt,sorted:new Set(sorted),hint:'第 '+(i+1)+' 位就位'});
-  }
-  for(let x=0;x<n;x++) sorted.add(x);
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(sorted), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* shellSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  const GAPS = [701,301,132,57,23,10,4,1];
-  for(let g=0; g<GAPS.length; g++){
-    const gap = GAPS[g];
-    if(gap >= n) continue;
-    step('gap', {cmp,swp,wrt,sorted:new Set(),hint:'当前增量 gap = '+gap});
-    for(let i=gap;i<n;i++){
-      let j = i;
-      while(j >= gap){
-        cmp++;
-        step('shift', {cmp,swp,wrt,sorted:new Set(),i:j,j:j-gap,hint:'gap='+gap+' · 比较相隔 '+gap+' 的两项'});
-        if(a[j-gap] > a[j]){
-          const t=a[j]; a[j]=a[j-gap]; a[j-gap]=t;   /* 跨 gap 交换：两根柱子横向换位 */
-          swp++; wrt+=2;
-          step('shift', {cmp,swp,wrt,sorted:new Set(),i:j,j:j-gap,swap:true,hint:'相隔 '+gap+' 逆序 → 交换'});
-          j -= gap;
-        } else break;
-      }
-      step('put', {cmp,swp,wrt,sorted:new Set(),i:j,j:j,hint:'该组内已就位'});
-    }
-  }
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(a.map((_,x)=>x)), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* mergeSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  const buf = new Array(Math.max(n,1)).fill(0);
-  function* sort(lo, hi){
-    if(hi - lo < 2) return;
-    const mid = (lo+hi) >> 1;
-    step('split', {cmp,swp,wrt,sorted:new Set(),i:lo,k:lo,hint:'拆分 ['+lo+','+hi+') → 两半'});
-    step('left', {cmp,swp,wrt,sorted:new Set(),i:lo,k:lo,hint:'递归排序左半 ['+lo+','+mid+')'});
-    yield* sort(lo, mid);
-    step('right', {cmp,swp,wrt,sorted:new Set(),i:mid,k:mid,hint:'递归排序右半 ['+mid+','+hi+')'});
-    yield* sort(mid, hi);
-    let i=lo, j=mid, k=lo;
-    while(i<mid && j<hi){
-      cmp++;
-      step('pick', {cmp,swp,wrt,sorted:new Set(),i,j,k,aux:buf.slice(0,n),auxLabel:'合并 ['+lo+','+hi+')',hint:'比较左段头与右段头'});
-      if(a[i] <= a[j]) buf[k++] = a[i++];
-      else             buf[k++] = a[j++];
-      wrt++;
-      step('back', {cmp,swp,wrt,sorted:new Set(),i,k,aux:buf.slice(0,n),auxLabel:'辅助缓冲区',hint:'较小者写入缓冲区'});
-    }
-    while(i<mid){ buf[k++]=a[i++]; wrt++; }
-    while(j<hi){ buf[k++]=a[j++]; wrt++; }
-    for(let t=lo;t<hi;t++){
-      if(a[t] === buf[t]){ wrt++; continue; }   /* 已在正确位置，画不出位移 */
-      a[t]=buf[t];
-      wrt++;
-      step('back', {cmp,swp,wrt,sorted:new Set(),i:t,k:t,aux:buf.slice(0,n),auxLabel:'辅助缓冲区',hint:'写回 a['+t+']'});
-    }
-  }
-  if(n > 1) yield* sort(0, n);
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(a.map((_,x)=>x)), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* quickSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  function* qs(lo, hi){
-    if(lo >= hi) return;
-    const mid = (lo+hi) >> 1;
-    if(a[mid] < a[lo]){ const t=a[mid]; a[mid]=a[lo]; a[lo]=t; swp++; wrt+=2; }
-    if(a[hi]  < a[lo]){ const t=a[hi];  a[hi]=a[lo]; a[lo]=t; swp++; wrt+=2; }
-    if(a[hi]  < a[mid]){ const t=a[hi]; a[hi]=a[mid]; a[mid]=t; swp++; wrt+=2; }
-    const p = a[mid];
-    step('pivot', {cmp,swp,wrt,sorted:new Set(),i:mid,j:lo,k:hi,hint:'三数取中 → pivot = '+p});
-    let i=lo, j=hi;
-    while(i <= j){
-      cmp++;
-      while(a[i] < p){ cmp++; step('left', {cmp,swp,wrt,sorted:new Set(),i,j,k:mid,hint:'a['+i+'] < pivot → i 右移'}); i++; }
-      cmp++;
-      while(a[j] > p){ cmp++; step('right', {cmp,swp,wrt,sorted:new Set(),i,j,k:mid,hint:'a['+j+'] > pivot → j 左移'}); j--; }
-      cmp++;
-      if(i <= j){
-        const t=a[i]; a[i]=a[j]; a[j]=t; swp++; wrt+=2;
-        step('swap', {cmp,swp,wrt,sorted:new Set(),i,j,swap:true,k:mid,hint:'左右互换，继续向中间收拢'});
-        i++; j--;
-      }
-    }
-    step('recurse', {cmp,swp,wrt,sorted:new Set(),i,j,k:mid,hint:'划分完成 · 左侧全部 ≤ pivot'});
-    step('split', {cmp,swp,wrt,sorted:new Set(),i:lo,j:j,k:mid,hint:'递归左段 ['+lo+','+j+'] 与右段 ['+i+','+hi+']'});
-    yield* qs(lo, j);
-    yield* qs(i, hi);
-  }
-  if(n > 1) yield* qs(0, n-1);
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(a.map((_,x)=>x)), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* heapSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  function* sift(root, end){
-    while(true){
-      let child = root*2 + 1;
-      if(child > end) break;
-      if(child+1 <= end){ cmp++; if(a[child] < a[child+1]) child++; }
-      cmp++;
-      step('siftcmp', {cmp,swp,wrt,sorted:new Set(sorted),i:root,j:child,hint:'父节点与较大子节点比较'});
-      if(a[root] < a[child]){
-        const t=a[root]; a[root]=a[child]; a[child]=t; swp++; wrt+=2;
-        step('swap', {cmp,swp,wrt,sorted:new Set(sorted),i:root,j:child,swap:true,hint:'父 < 子 → 交换后继续下沉'});
-        root = child;
-      } else break;
-    }
-    step('siftend', {cmp,swp,wrt,sorted:new Set(sorted),i:root,j:-1,hint:'该子树已满足大顶堆'});
-  }
-  for(let i=(n-2)>>1; i>=0; i--){
-    step('build', {cmp,swp,wrt,sorted:new Set(sorted),i:i,hint:'阶段一：从 a['+i+'] 开始建堆'});
-    yield* sift(i, n-1);
-  }
-  for(let end=n-1; end>0; end--){
-    const t=a[0]; a[0]=a[end]; a[end]=t; swp++; wrt+=2;
-    sorted.add(end);
-    step('mark', {cmp,swp,wrt,sorted:new Set(sorted),i:0,j:end,swap:true,hint:'堆顶最大值归位到 a['+end+']'});
-    if(end - 1 > 0) yield* sift(0, end-1);
-  }
-  if(n > 0) sorted.add(0);
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(sorted), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-function* radixSort(arr){
-  const a = arr.slice(), n = a.length;
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  let max = 0; for(let i=0;i<n;i++) if(a[i] > max) max = a[i];
-  let digits = 1; while(Math.pow(10, digits) <= max) digits++;
-  for(let d=0; d<digits; d++){
-    const buckets = Array.from({length:10}, ()=>[]);
-    const dump = () => buckets.map(b=>b.slice());
-    for(let i=0;i<n;i++){
-      const dig = Math.floor(a[i]/Math.pow(10,d)) % 10;
-      wrt++;
-      buckets[dig].push(a[i]);
-      step('bucket', {cmp,swp,wrt,sorted:new Set(),i,j:-1,dig,buckets:dump(),hint:'取出第 '+d+' 位 → 桶 '+dig});
-      step('digit', {cmp,swp,wrt,sorted:new Set(),i,j:-1,dig,buckets:dump(),hint:'第 '+(d+1)+' 位（'+dig+'）→ 桶 '+dig});
-    }
-    /* 按桶序收回。为了能画出横向交换，这里用「交换」把目标值换到 k 位，
-       而不是直接覆盖 —— 数组在每一步都保持是同一个排列。 */
-    let k = 0;
-    for(let b=0;b<10;b++){
-      for(let q=0;q<buckets[b].length;q++){
-        const want = buckets[b][q];
-        let at = k;
-        while(at < n && a[at] !== want) at++;
-        if(at !== k){
-          const t = a[k]; a[k] = a[at]; a[at] = t;
-          swp++; wrt += 2;
-          step('gather', {cmp,swp,wrt,sorted:new Set(),i:k,j:at,swap:true,dig:b,buckets:dump(),hint:'把桶 '+b+' 的元素交换到第 '+k+' 位'});
-        } else {
-          wrt++;
-          step('gather', {cmp,swp,wrt,sorted:new Set(),i:k,j:-1,dig:b,buckets:dump(),hint:'桶 '+b+' 的元素已在第 '+k+' 位'});
-        }
-        k++;
-      }
-    }
-    step('pass', {cmp,swp,wrt,sorted:new Set(),j:-1,buckets:dump(),hint:'第 '+(d+1)+' 位分发完成'});
-  }
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(a.map((_,x)=>x)), cmp, swp, wrt, fin:true, step:null, hint:'排序完成（全程没有比较）'};
-}
-
-function* cocktailSort(arr){
-  const a = arr.slice(), n = a.length, sorted = new Set();
-  let cmp=0, swp=0, wrt=0;
-  const out = [];
-  const step = (id, o) => { o.a = a.slice(); o.step = id; out.push(o); };
-  let lo = 0, hi = n-1;
-  while(lo < hi){
-    let swapped = false;
-    for(let i=lo; i<hi; i++){
-      cmp++;
-      step('fwd', {cmp,swp,wrt,sorted:new Set(sorted),i,j:i+1,hint:'→ 向右扫描 · 把最大值推向 hi'});
-      if(a[i] > a[i+1]){
-        const t=a[i];a[i]=a[i+1];a[i+1]=t; swp++; wrt+=2; swapped = true;
-        step('fwd', {cmp,swp,wrt,sorted:new Set(sorted),i,j:i+1,swap:true,hint:'逆序 → 交换'});
-      }
-    }
-    sorted.add(hi); hi--;
-    for(let i=hi; i>lo; i--){
-      cmp++;
-      step('markhi', {cmp,swp,wrt,sorted:new Set(sorted),i,j:i-1,hint:'← 向左扫描 · 把最小值推向 lo'});
-      if(a[i] < a[i-1]){
-        const t=a[i];a[i]=a[i-1];a[i-1]=t; swp++; wrt+=2; swapped = true;
-        step('bwd', {cmp,swp,wrt,sorted:new Set(sorted),i,j:i-1,swap:true,hint:'逆序 → 交换'});
-      }
-    }
-    sorted.add(lo); lo++;
-    step('marklo', {cmp,swp,wrt,sorted:new Set(sorted),hint:'一次往返完成 · 两端各就位一个'});
-    if(!swapped){ for(let x=0;x<n;x++) sorted.add(x); break; }
-  }
-  for(let x=0;x<n;x++) sorted.add(x);
-  yield* out;
-  yield {a:a.slice(), sorted:new Set(sorted), cmp, swp, wrt, fin:true, step:null, hint:'排序完成 · 全部有序'};
-}
-
-const GEN = {
-  bubble:bubbleSort, insertion:insertionSort, selection:selectionSort,
-  shell:shellSort, merge:mergeSort, quick:quickSort, heap:heapSort,
-  radix:radixSort, cocktail:cocktailSort
-};
-
-/* ============================================================
-   3. State
-   ============================================================ */
-const $ = id => document.getElementById(id);
-const cv = $('cv'), ctx = cv.getContext('2d');
-const stage = $('stage');
-
-/* roundRect arrived in Safari 16.4 / Firefox 112 — fall back to a plain rect there
-   so older engines still paint bars instead of throwing on every frame */
-if(ctx && typeof ctx.roundRect !== 'function'){
-  ctx.roundRect = function(x, y, w, h){ this.rect(x, y, w, h); return this; };
-}
-
-const S = {
-  algo:'bubble',
-  n:60,
-  values:[],
-  speed:0.6,
-  sound:false,
-  ruler:true,
-  barStyle:'round',
-  frames:[],
-  raf:0, nframes:0, acc:0, delay:0,
-  playing:false,
-  done:true,
-  finAt:-1,
-  hover:-1,
-  size:1200, dpr:1
-};
-const SORTED_ARR = () => new Set(S.values.map((_,i)=>i));
-
-/* ============================================================
-   4. Utils
-   ============================================================ */
-function fmt(n){ return n.toLocaleString('en-US'); }
-function hex2rgb(h){
-  const v = parseInt(h.slice(1),16);
-  return [(v>>16)&255, (v>>8)&255, v&255];
-}
-function mix(c1,c2,t){ return [c1[0]+(c2[0]-c1[0])*t, c1[1]+(c2[1]-c1[1])*t, c1[2]+(c2[2]-c1[2])*t]; }
-function css(c,a){ return 'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(a===undefined?1:a)+')'; }
-function shade(c,t){ return c.map(v=>Math.max(0,Math.min(255,v*t))); }
-function timeStr(t){ return t.toFixed(2)+'s'; }
-
-function genArray(n){
-  const a = [];
-  for(let i=0;i<n;i++) a.push(i+1);
-  for(let i=n-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); const t=a[i];a[i]=a[j];a[j]=t; }
-  return a;
-}
-
-/* ============================================================
-   5. Audio — pentatonic sonification
-   ============================================================ */
-const MAJ_PENT = [0,2,4,7,9];
-let AC = null, master = null, voices = 0;
-function audioOn(){ return S.sound && AC && AC.state === 'running'; }
-function ensureAudio(){
-  if(AC) return;
-  const Ctx = window.AudioContext || window.webkitAudioContext;
-  if(!Ctx) return;
-  AC = new Ctx();
-  master = AC.createGain();
-  master.gain.value = 0.16;
-  master.connect(AC.destination);
-}
-function tone(midi, gain, dur){
-  if(!audioOn() || voices > 12) return;
-  const f = 440 * Math.pow(2, (midi - 69) / 12);
-  const o = AC.createOscillator(), g = AC.createGain();
-  o.type = 'triangle'; o.frequency.value = f;
-  const t = AC.currentTime;
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(gain, t + 0.006);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(master);
-  voices++;
-  o.onended = () => { voices--; };
-  o.start(t); o.stop(t + dur + 0.02);
-}
-function midiFor(v){
-  const steps = 25;
-  const idx = Math.min(MAJ_PENT.length - 1, Math.floor(((v - 1) / steps) * MAJ_PENT.length));
-  const oct = Math.min(1, Math.floor((v - 1) / steps));
-  return 58 + MAJ_PENT[Math.max(0, idx)] + oct * 12;
-}
-
-/* ============================================================
-   6. Frame generation
-   ============================================================ */
-/* one generator frame -> the compact render frame used everywhere below */
-function convertFrame(f, fallback){
-  return {
-    a: f.a || fallback,
-    i: f.i === undefined ? -1 : f.i,
-    j: f.j === undefined ? -1 : f.j,
-    k: f.k === undefined ? -1 : f.k,
-    dig: f.dig === undefined ? -1 : f.dig,
-    cmp: f.cmp|0, swp: f.swp|0, wrt: f.wrt|0,
-    s: f.sorted || null,
-    hint: f.hint || '',
-    aux: f.aux || null,
-    auxLabel: f.auxLabel || null,
-    buckets: f.buckets || null,
-    swap: !!f.swap,
-    step: f.step || null,
-    fin: !!f.fin
-  };
-}
-/* trim the leading "nothing sorted yet" prefix and subsample runaway runs */
-function finishFrames(all){
-  let best = 0;
-  for(let i=0;i<all.length;i++) if(!all[i].s || !all[i].s.size){ best = i; break; }
-  const frames = all.slice(Math.max(0, best - 2));
-  if(frames.length > 240000){
-    const step = Math.ceil(frames.length / 240000);
-    const slim = [];
-    for(let i=0;i<frames.length;i+=step) slim.push(frames[i]);
-    if(slim[slim.length-1] !== frames[frames.length-1]) slim.push(frames[frames.length-1]);
-    return slim;
-  }
-  return frames;
-}
-/* build the whole timeline in slices, yielding to the browser between them so the
-   "计算中…" state actually paints instead of the page freezing on ~25k frames */
-let buildToken = 0;
-function buildFramesChunked(done, fail, token){
-  const out = [];
-  const fallback = S.values;
-  const it = GEN[S.algo](fallback);
-  const CHUNK = 2500;
-  function step(){
-    if(token !== buildToken) return;            // superseded by a newer run
-    try{
-      for(let i=0;i<CHUNK;i++){
-        const r = it.next();
-        if(r.done){ done(finishFrames(out)); return; }
-        out.push(convertFrame(r.value, fallback));
-      }
-      setTimeout(step, 0);
-    }catch(err){ fail(err); }
-  }
-  step();
-}
-
-/* synchronous helper (used by tests) — same compact frame shape as the chunked builder */
-function buildFrames(){
-  const out = [];
-  const it = GEN[S.algo](S.values);
-  let r = it.next();
-  while(!r.done){ out.push(convertFrame(r.value, S.values)); r = it.next(); }
-  return finishFrames(out);
-}
-
-/* ============================================================
-   7. Playback
-   ============================================================ */
-function resetAnim(){
-  S.acc = 0; S.delay = 0.7; S.done = S.frames.length === 0;
-  S.finAt = -1;
-}
-function restart(paused){
-  S.raf = 0; S.acc = 0; S.delay = 0;
-  S.done = false;
-  S.finAt = -1;
-  S.playing = !paused;
-  if(S.playing){ S.delay = 0.75; if(audioOn() && AC.state === 'suspended') AC.resume(); }
-  setPlayIcon();
-  const f = S.frames[0];
-  setText('cfProg', '0%');
-  setText('cfNote', f ? f.hint : '');
-  updateChips(0, 0);
-}
-function advance(dt){
-  if(S.playing && S.delay > 0){ S.delay -= dt; if(S.delay < 0) S.delay = 0; return; }
-  if(!S.playing || S.done) return;
-  const fps = 2 * Math.pow(120, S.speed);
-  const steps = dt * fps;
-  if(steps <= 0) return;
-  S.acc += steps;
-  const inc = Math.floor(S.acc);
-  if(inc > 0){
-    S.acc -= inc;
-    S.raf = Math.min(S.nframes - 1, S.raf + inc);
-    if(S.raf >= S.nframes - 1) { S.done = true; S.playing = false; setPlayIcon(); finishChime(); }
-  }
-}
-function finishChime(){
-  S.finAt = performance.now();
-  if(!audioOn()) return;
-  let i = 0;
-  const iv = setInterval(() => {
-    if(!audioOn() || i > 23){ clearInterval(iv); return; }
-    tone(62 + Math.round(i * 9 / 23) + (i % 2 ? 4 : 0), 0.07, 0.5);
-    i++;
-  }, 42);
-}
-
-/* ============================================================
-   8. Canvas
-   ============================================================ */
-/* re-measure the code panel (cheap, only on resize) */
-function remeasureCode(){
-  if(!codeState) return;
-  const main = $('codeMain'), wrap = $('codeWrap');
-  if(main) codeState.viewH = Math.max(40, main.clientHeight || codeState.h);
-  if(wrap) codeState.wrapW = wrap.clientWidth;
-}
-function resize(){
-  const r = stage.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  S.size = Math.max(200, r.width); S.dpr = dpr;
-  cv.width = Math.round(r.width * dpr);
-  cv.height = Math.round(r.height * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
-/* Work out how the bars travelled between two frames, so the animation can slide them
-   from their old slot to their new one instead of growing and shrinking in place.
-   Handles a single element shifting (insertion/shell/radix), a two-element swap
-   (bubble/selection/heap/quick/cocktail) and — when the move is unambiguous — a whole
-   block being rewritten (merge). Returns [{from,to}] on the 0..1 index scale. */
-function detectMoves(from, to){
-  if(!from || !to || from.length !== to.length) return null;
-  const n = from.length;
-  const byValue = new Map();
-  for(let i = 0; i < n; i++) byValue.set(from[i], i);
-  const moves = [];
-  for(let i = 0; i < n; i++){
-    if(from[i] === to[i]) continue;
-    const src = byValue.get(to[i]);
-    if(src === undefined) return null;            // a value appeared from nowhere
-    moves.push({ from: src, to: i });
-    if(moves.length > n) return null;
-  }
-  return moves.length ? moves : null;
-}
-
-/* apply the detected moves to a copy of the source snapshot (used to verify detection) */
-function applyMoves(from, moves){
-  const out = from.slice();
-  const src = from.slice();
-  for(let k = 0; k < moves.length; k++) out[moves[k].to] = src[moves[k].from];
-  return out;
-}
-
-/* rebuilt if exactly two positions exchanged values between two frames */
-function findSwapPair(from, to){
-  if(!from || !to || from.length !== to.length) return null;
-  let i = -1, j = -1, diff = 0;
-  for(let p = 0; p < from.length; p++){
-    if(from[p] !== to[p]){
-      diff++;
-      if(diff > 2) return null;
-      if(i < 0) i = p; else j = p;
-    }
-  }
-  if(diff !== 2) return null;
-  return (from[i] === to[j] && from[j] === to[i]) ? [i, j] : null;
-}
-
-let moveCache = { idx: -1, moves: null };
-function cachedMoves(idx, from, to){
-  if(moveCache.idx !== idx){
-    moveCache.idx = idx;
-    moveCache.moves = detectMoves(from, to);
-  }
-  return moveCache.moves;
-}
-
-function draw(){
-  const W = S.size, H = stage.getBoundingClientRect().height;
-  ctx.clearRect(0, 0, W, H);
-
-  const n = S.n;
-  const nf = S.frames.length;
-  const idx = Math.min(nf - 1, S.raf);
-  const cur = nf ? S.frames[idx] : null;
-  const nxt = (nf && idx < nf - 1 && !S.done) ? S.frames[idx + 1] : null;
-  const t = S.done ? 1 : Math.min(1, S.acc);
-  const A = cur ? cur.a : S.values;
-
-  const ac = ALGOS[S.algo].ac, ac2 = ALGOS[S.algo].ac2;
-  const AC1 = hex2rgb(ac), AC2 = hex2rgb(ac2);
-  const GOLD = [240,200,110];
-  const MUT = [58,62,74], MUT_HI = [92,98,114];
-  const sortedSet = (S.done || !cur) ? SORTED_ARR() : cur.s;
-
-  const bucketRow = !!(cur && cur.buckets);
-  const auxBar = !!(cur && cur.aux);
-  const bandH = bucketRow ? 58 : (auxBar ? 34 : 0);
-  const rulerH = S.ruler ? 22 : 0;
-  const padL = 20, padR = 20, padT = 48;
-  const padB = 16 + bandH + rulerH;
-  const x0 = padL, x1 = W - padR;
-  const y0 = padT, y1 = H - padB;
-  const bw = Math.max(1.15, (x1 - x0) / n);
-
-  /* vertical frame lines */
-  if(W > 620){
-    ctx.strokeStyle = 'rgba(255,255,255,.030)';
-    ctx.lineWidth = 1;
-    for(let g = 0; g <= 4; g++){
-      const gx = Math.round(x0 + (x1 - x0) * g / 4) + 0.5;
-      ctx.beginPath(); ctx.moveTo(gx, y0 - 14); ctx.lineTo(gx, y1 + 6); ctx.stroke();
-    }
-    ctx.fillStyle = 'rgba(255,255,255,.10)';
-    ctx.font = '9px "SF Mono",ui-monospace,Menlo,monospace';
-    ctx.textAlign = 'center';
-    for(let g = 0; g <= 4; g++){
-      ctx.fillText(g === 0 ? 'a[0]' : (g === 4 ? 'a[' + (n - 1) + ']' : String(Math.round((n - 1) * g / 4))), x0 + (x1 - x0) * g / 4, y0 - 20);
-    }
-  }
-
-  /* bars */
-  const range = Math.max(1, n);
-  const hover = S.hover;
-  const w = Math.max(1, bw - (bw > 7 ? 1.6 : bw > 3 ? 0.9 : 0.45));
-
-  function barColor(p, v, extraLight){
-    if(sortedSet && sortedSet.has(p)) return mix([22,58,52], GOLD, 0.22);
-    return mix(MUT, MUT_HI, v / range);
-  }
-
-  /* paint one bar of height h with its top at topY; x is the left edge */
-  function paintBar(x, topY, h, c, opts){
-    const o = opts || {};
-    const g = ctx.createLinearGradient(0, topY, 0, topY + h);
-    g.addColorStop(0, css(shade(c, 1.16), 0.97));
-    g.addColorStop(1, css(shade(c, 0.45), 0.72));
-    ctx.fillStyle = g;
-    if(o.overlap){
-      ctx.save();
-      ctx.beginPath(); ctx.rect(Math.round(x) - 2.5, topY - 6, Math.round(w) + 5, h + 8); ctx.clip();
-      if(S.barStyle === 'round'){
-        ctx.beginPath(); ctx.roundRect(Math.round(x), topY, w, h, Math.min(w / 2, 3.5)); ctx.fill();
-      } else if(S.barStyle === 'thin'){
-        ctx.fillRect(Math.round(x) + (bw - w) / 2, topY, Math.max(1, w * 0.5), h);
-      } else {
-        ctx.fillRect(Math.round(x), topY, w, h);
-      }
-      ctx.restore();
-      ctx.strokeStyle = css(shade(c, 1.5), 0.85);
-      ctx.lineWidth = 1.2;
-      ctx.beginPath(); ctx.roundRect(Math.round(x) - 1, topY - 1, w + 2, h + 1, Math.min(w / 2, 3.5)); ctx.stroke();
-    } else {
-      if(S.barStyle === 'round'){
-        ctx.beginPath(); ctx.roundRect(x, topY, w, h, Math.min(w / 2, 3.5)); ctx.fill();
-      } else if(S.barStyle === 'thin'){
-        ctx.fillRect(x + (bw - w) / 2, topY, Math.max(1, w * 0.5), h);
-      } else {
-        ctx.fillRect(x, topY, w, h);
-      }
-    }
-    if(o.cap){
-      ctx.fillStyle = css(c, o.capAlpha === undefined ? 0.55 : o.capAlpha);
-      ctx.fillRect(Math.round(x) - 1, topY - 4, w + 2, 2);
-    }
-  }
-
-  /* Bars that moved between the two frames travel sideways into their new slot —
-     a swap crosses over, a shift slides one place, a block rewrite glides together.
-     No vertical arc: a straight horizontal translation. */
-  const moves = (nxt && t < 1) ? cachedMoves(idx, A, nxt.a) : null;
-  const eased = t * t * (3 - 2 * t);
-  const moved = moves && moves.length && moves.length <= 64 ? moves : null;
-
-  const movingFrom = {};
-  if(moved) for(let k = 0; k < moved.length; k++) movingFrom[moved[k].from] = 1;
-
-  for(let p = 0; p < n; p++){
-    if(movingFrom[p]) continue;                      // drawn as a travelling bar below
-    const vA = A[p], vB = nxt ? nxt.a[p] : vA;
-    const v = vA + (vB - vA) * t;
-    const h = Math.max(1.2, (v / range) * (y1 - y0));
-    const bx = x0 + p * bw;
-    let c;
-    if(cur && (p === cur.i || p === cur.j || p === cur.k)) c = AC2;
-    else c = barColor(p, v);
-    if(p === hover) c = mix(c, [255,255,255], 0.35);
-
-    paintBar(bx, y1 - h, h, c, {
-      overlap: false,
-      cap: !!(cur && (p === cur.i || p === cur.j) && !S.done),
-    });
-  }
-
-  if(moved){
-    for(let k = 0; k < moved.length; k++){
-      const src = moved[k].from, dst = moved[k].to;
-      const v = A[src];
-      const h = Math.max(1.2, (v / range) * (y1 - y0));
-      const shift = (dst - src) * bw * eased;
-      /* the bar keeps its own height while it travels, and takes the colour of the
-         slot it is heading for so overlapping travellers stay distinguishable */
-      const c = mix(barColor(dst, v), AC2, 0.22);
-      paintBar(x0 + src * bw + shift, y1 - h, h, c,
-               { overlap: true, cap: true, capAlpha: 0.9 });
-    }
-  }
-
-  /* baseline */
-  ctx.strokeStyle = 'rgba(255,255,255,.16)';
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(x0 - 4, y1 + 0.5); ctx.lineTo(x1 + 4, y1 + 0.5); ctx.stroke();
-
-  /* merge buffer strip */
-  if(auxBar){
-    const ay = y1 + 17, ah = 12;
-    ctx.fillStyle = 'rgba(255,255,255,.045)';
-    ctx.fillRect(x0, ay, x1 - x0, ah);
-    const m = cur.aux.length;
-    if(m){
-      const w2 = (x1 - x0) / m;
-      for(let q = 0; q < m; q++){
-        const v = cur.aux[q];
-        const hh = Math.max(1.5, (v / range) * ah);
-        ctx.fillStyle = css(AC1, 0.85);
-        ctx.fillRect(x0 + q * w2, ay + ah - hh, Math.max(1, w2 - 1), hh);
-      }
-    }
-    ctx.fillStyle = 'rgba(255,255,255,.42)';
-    ctx.font = '9.5px "SF Mono",ui-monospace,Menlo,monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText(cur.auxLabel || 'work buffer', x1, ay - 5);
-  }
-
-  /* radix buckets */
-  if(bucketRow){
-    const by = y1 + 15, bh = 34;
-    const total = x1 - x0;
-    const cw = total / 10;
-    for(let b = 0; b < 10; b++){
-      const bx = x0 + b * cw;
-      const items = cur.buckets[b] || [];
-      const active = items.length > 0;
-      const isCur = cur.dig === b;
-      ctx.fillStyle = active ? (isCur ? css(AC1, 0.17) : 'rgba(255,255,255,.07)') : 'rgba(255,255,255,.022)';
-      ctx.beginPath(); ctx.roundRect(bx + 1.5, by, cw - 3, bh, 4); ctx.fill();
-      if(isCur){
-        ctx.strokeStyle = css(AC1, 0.75);
-        ctx.lineWidth = 1.2;
-        ctx.beginPath(); ctx.roundRect(bx + 1.5, by, cw - 3, bh, 4); ctx.stroke();
-      }
-      if(active){
-        const w2 = (cw - 6) / items.length;
-        for(let q = 0; q < items.length; q++){
-          const hh = Math.max(1.5, (items[q] / range) * (bh - 4));
-          ctx.fillStyle = css(mix(AC1, [255,255,255], q / Math.max(1, items.length)), 0.9);
-          ctx.fillRect(bx + 3 + q * w2, by + bh - 2 - hh, Math.max(1, w2 - 0.7), hh);
-        }
-      }
-      ctx.fillStyle = active ? css(AC2, 0.9) : 'rgba(255,255,255,.22)';
-      ctx.font = '9.5px "SF Mono",ui-monospace,Menlo,monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(String(b), bx + cw / 2, by + bh + 11);
-    }
-  }
-
-  /* time ruler */
-  if(S.ruler){
-    const ry = H - 13;
-    ctx.strokeStyle = 'rgba(255,255,255,.07)';
-    ctx.beginPath(); ctx.moveTo(x0, ry + 0.5); ctx.lineTo(x1, ry + 0.5); ctx.stroke();
-    const span = Math.max(1, nf - 1);
-    const ticks = Math.max(4, Math.min(10, Math.floor((x1 - x0) / 110)));
-    ctx.font = '9px "SF Mono",ui-monospace,Menlo,monospace';
-    ctx.textAlign = 'center';
-    for(let q = 0; q <= ticks; q++){
-      const fr = Math.round(span * q / ticks);
-      const tx = x0 + (x1 - x0) * q / ticks;
-      ctx.strokeStyle = 'rgba(255,255,255,.12)';
-      ctx.beginPath(); ctx.moveTo(tx + 0.5, ry); ctx.lineTo(tx + 0.5, ry - 4); ctx.stroke();
-      ctx.fillStyle = 'rgba(255,255,255,.20)';
-      ctx.fillText(String(fr), tx, ry + 11);
-    }
-    const px = x0 + (x1 - x0) * (idx / span);
-    ctx.strokeStyle = css(AC1, 0.85);
-    ctx.lineWidth = 1.4;
-    ctx.beginPath(); ctx.moveTo(px, ry - 7); ctx.lineTo(px, ry + 4); ctx.stroke();
-    ctx.fillStyle = css(AC1, 0.85);
-    ctx.beginPath(); ctx.arc(px, ry - 9, 2.2, 0, Math.PI * 2); ctx.fill();
-  }
-
-  /* hover tooltip */
-  if(hover >= 0 && hover < n){
-    const v = A[hover];
-    const h = Math.max(1.2, (v / range) * (y1 - y0));
-    const bx = x0 + hover * bw + bw / 2;
-    const label = 'a[' + hover + '] = ' + Math.round(v);
-    ctx.font = '10px "SF Mono",ui-monospace,Menlo,monospace';
-    const tw = ctx.measureText(label).width + 14;
-    let tx = bx - tw / 2;
-    tx = Math.max(4, Math.min(W - tw - 4, tx));
-    const ty = Math.max(4, y1 - h - 30);
-    ctx.fillStyle = 'rgba(12,14,19,.92)';
-    ctx.strokeStyle = 'rgba(255,255,255,.16)';
-    ctx.beginPath(); ctx.roundRect(tx, ty, tw, 20, 6); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#ede9e0';
-    ctx.textAlign = 'left';
-    ctx.fillText(label, tx + 7, ty + 14);
-    ctx.strokeStyle = css(AC1, 0.5);
-    ctx.beginPath(); ctx.moveTo(bx, ty + 20); ctx.lineTo(bx, y1 - h); ctx.stroke();
-  }
-
-  /* finish sweep */
-  if(S.finAt > 0){
-    const age = (performance.now() - S.finAt) / 1000;
-    if(age > 1.35) S.finAt = -1;
-    else{
-      const prog = age / 1.35;
-      const head = prog * (x1 - x0);
-      const grad = ctx.createLinearGradient(x0 + head - 190, 0, x0 + head, 0);
-      grad.addColorStop(0, 'rgba(255,236,190,0)');
-      grad.addColorStop(1, 'rgba(255,236,190,.38)');
-      ctx.save();
-      ctx.beginPath(); ctx.rect(x0, y0 - 26, head, (y1 - y0) + 30); ctx.clip();
-      ctx.fillStyle = grad;
-      ctx.fillRect(x0 + head - 190, y0 - 26, 190, (y1 - y0) + 30);
-      ctx.restore();
-      const pulse = Math.sin(prog * Math.PI);
-      ctx.strokeStyle = css(GOLD, 0.85 * (1 - prog));
-      ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.moveTo(x0 + head, y0 - 22 + pulse * 6); ctx.lineTo(x0 + head, y1 + 6 - pulse * 6); ctx.stroke();
-    }
-  }
-
-  /* hint + frame readout */
-  if(cur){
-    ctx.font = '11px "SF Mono",ui-monospace,Menlo,monospace';
-    ctx.textAlign = 'left';
-    ctx.fillStyle = 'rgba(255,255,255,.44)';
-    ctx.fillText(cur.hint, x0, y0 - 30);
-  }
-  $('tick').textContent = 'frame ' + String(idx).padStart(4, '0') + ' / ' + String(Math.max(0, nf - 1)).padStart(4, '0');
-}
-
-/* ============================================================
-   9. UI sync
-   ============================================================ */
-function setPlayIcon(){
-  $('playIcon').innerHTML = S.playing
-    ? '<path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor" stroke="none"/>'
-    : '<path d="M7 4l12 8-12 8z" fill="currentColor" stroke="none"/>';
-  $('stateText').textContent = S.playing ? '运行中' : (S.done ? '已完成' : '已暂停');
-}
-function paintStats(cmp, swp, wrt, time, prog, hint){
-  setText('cfProg', Math.round(prog * 100) + '%');
-  setText('cfNote', hint || '');
-}
-/* the header pill and the step readout; the metric cards that used to live here
-   were removed, so the footer's progress figure is the only running number */
-function updateCards(){
-  const nf = S.frames.length;
-  const idx = Math.min(nf - 1, S.raf);
-  const cur = nf ? S.frames[idx] : null;
-  const prog = (nf - 1) > 0 ? idx / (nf - 1) : 1;
-  setText('cfProg', Math.round(prog * 100) + '%');
-  /* cfNote follows the throttled highlight (see updateCode) so it cannot churn */
-}
-
-/* ============================================================
-   10. Loop/* ============================================================
-   10. Loop
-   ============================================================ */
-let last = 0;
-function frame(ts){
-  requestAnimationFrame(frame);
-  if(!last) last = ts;
-  let dt = (ts - last) / 1000;
-  last = ts;
-  if(dt > 0.08) dt = 0.08;
-  if(!document.hidden) advance(dt);
-  draw();
-  updateCards();
-  const fi = Math.min(S.nframes - 1, S.raf);
-  const fr = S.frames.length ? S.frames[fi] : null;
-  countStepHits(Math.max(0, fi));
-  updateCode(fr);
-}
-requestAnimationFrame(frame);
-
-/* ============================================================
-   11. Actions
-   ============================================================ */
-/* header pill + the badge under the canvas; the metric cards are gone */
-function updateChips(cmp){
-  const A = ALGOS[S.algo];
-  setText('chipCmp', fmt(cmp || 0) + ' 次比较');
-  setText('chipAlgo', 'n = ' + S.n + ' · ' + A.short);
-  setText('subMeta', A.note);
-  $('heroName').innerHTML = A.name + '<span class="amp">/</span>' + A.en;
-  $('badge').textContent = A.en.toUpperCase() + ' — ' + A.cmpHint;
-}
-function computeStats(){
-  const F = S.frames;
-  if(!F.length) return;
-  const lastF = F[F.length - 1];
-  updateChips(lastF.cmp);
-}
-
-function regenerate(keepPlaying){
-  S.values = genArray(S.n);
-  S.hover = -1;
-  setBusy(true);
-  const token = ++buildToken;
-  buildFramesChunked(function(frames){
-    if(token !== buildToken) return;
-    S.frames = frames;
-    S.nframes = S.frames.length;
-    resetAnim();
-    restart(!keepPlaying);
-    computeStats();
-    resetCodeCounts();
-    markHotLines();
-    setBusy(false);
-  }, function(err){
-    if(token !== buildToken) return;
-    S.frames = []; S.nframes = 0; S.done = true; S.playing = false;
-    setBusy(false);
-    setPlayIcon();
-    $('stateText').textContent = '生成失败';
-    setText('cfNote', String(err && err.message ? err.message : err));
-  }, token);
-}
-function setBusy(b){
-  $('stateText').textContent = b ? '计算中…' : (S.playing ? '运行中' : (S.done ? '已完成' : '已暂停'));
-  cv.style.opacity = b ? '0.45' : '1';
-}
-function selectAlgo(key){
-  if(!ALGOS[key] || key === S.algo) return;
-  S.algo = key;
-  document.body.style.setProperty('--accent', ALGOS[key].ac);
-  document.body.style.setProperty('--accent2', ALGOS[key].ac2);
-  [...$('algos').children].forEach(b => b.setAttribute('aria-selected', String(b.dataset.key === key)));
-  updateChips(0);
-  buildCodePanel();
-  regenerate(true);
-}
-function buildLangTabs(){
-  const bar = $('langbar');
-  bar.innerHTML = '';
-  CODE_LANGS.forEach(function(L){
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'lang'; b.role = 'tab';
-    b.dataset.lang = L.id;
-    b.setAttribute('aria-selected', String(L.id === codeLang));
-    b.innerHTML = L.label + '<em>' + L.short + '</em>';
-    b.addEventListener('click', function(){ showLang(L.id); });
-    bar.appendChild(b);
-  });
-}
-function buildAlgoTabs(){  const nav = $('algos');
-  nav.innerHTML = '';
-  ORDER.forEach(k => {
-    const A = ALGOS[k];
-    const b = document.createElement('button');
-    b.className = 'algo'; b.type = 'button'; b.role = 'tab';
-    b.dataset.key = k;
-    b.style.setProperty('--ac', A.ac);
-    b.setAttribute('aria-selected', String(k === S.algo));
-    b.innerHTML = A.name + '<span class="cn">' + A.en + '</span>';
-    b.addEventListener('click', () => selectAlgo(k));
-    nav.appendChild(b);
-  });
-  document.body.style.setProperty('--accent', ALGOS[S.algo].ac);
-  document.body.style.setProperty('--accent2', ALGOS[S.algo].ac2);
-}
-
-/* sliders */
-function syncSlider(el){
-  const min = +el.min, max = +el.max, v = +el.value;
-  el.style.setProperty('--p', ((v - min) / (max - min) * 100).toFixed(2) + '%');
-}
-function speedLabel(){
-  const fps = 2 * Math.pow(120, S.speed);
-  $('speedOut').textContent = (fps < 10 ? fps.toFixed(1) : Math.round(fps)) + ' 步/秒';
-}
-
-/* pointer */
-function hitTest(clientX){
-  const r = cv.getBoundingClientRect();
-  const n = S.n, padL = 20, padR = 20;
-  const x0 = padL, x1 = r.width - padR;
-  const bw = (x1 - x0) / n;
-  const p = Math.floor((clientX - r.left - x0) / bw);
-  return (p >= 0 && p < n) ? p : -1;
-}
-cv.addEventListener('mousemove', e => { S.hover = hitTest(e.clientX); });
-cv.addEventListener('mouseleave', () => { S.hover = -1; });
-cv.addEventListener('pointerdown', e => { S.hover = hitTest(e.clientX); });
-/* touch and pen never fire mouseleave, so clear the highlight on release too */
-['pointerup','pointercancel','pointerleave'].forEach(ev =>
-  cv.addEventListener(ev, () => { S.hover = -1; }));
-
-/* ============================================================
-   12. Live code panel — multi-language
-   ============================================================ */
-const CODE_LANGS = [
-  { id: 'js',   label: 'JavaScript', short: 'JS' },
-  { id: 'py',   label: 'Python',     short: 'PY' },
-  { id: 'c',    label: 'C',          short: 'C' },
-  { id: 'java', label: 'Java',       short: 'JAVA' },
-];
-const KW_BY_LANG = {
-  js:   ['for','while','if','else','const','let','var','function','return','break','continue','yield','new','of','in','true','false','null'],
-  py:   ['for','while','if','elif','else','def','return','break','continue','in','not','and','or','True','False','None','range','len','max','set'],
-  c:    ['for','while','if','else','int','void','static','return','break','continue','const','printf','sizeof'],
-  java: ['for','while','if','else','int','void','static','return','break','continue','boolean','public','class','new','true','false','null','System'],
-};
-function kwRegex(lang){
-  return new RegExp('(^|[^\\w$])(' + KW_BY_LANG[lang].join('|') + ')(?![\\w$])', 'g');
-}
-/* split a source line into code and its comment, so phones can drop the comment
-   column (which is what makes the long lines long) and show it in the footer */
-function splitComment(line, lang){
-  if(lang === 'c'){
-    const m = line.match(/^(.*?)(\s*\/\*.*\*\/)\s*$/);
-    if(m) return [m[1], m[2].trim()];
-  }
-  const i = line.indexOf(lang === 'py' ? '#' : '//');
-  if(i < 0) return [line, ''];
-  return [line.slice(0, i), line.slice(i)];
-}
-
-function escHtml(t){
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-/* Colour comments, keywords, calls and numbers.
-   Tokens are parked as \x00N\x00 placeholders first so a later pass can never match
-   inside the HTML a previous pass inserted. */
-function highlight(line, lang){
-  const ci = line.indexOf('//');
-  const hash = line.indexOf('#');
-  const cut = (ci < 0) ? hash : (hash < 0 ? ci : Math.min(ci, hash));
-  const codeText = cut >= 0 ? line.slice(0, cut) : line;
-  const comment  = cut >= 0 ? line.slice(cut) : '';
-  let t = escHtml(codeText);
-  const spans = [];
-  const park = function(html){ spans.push(html); return '\u0000' + (spans.length - 1) + '\u0000'; };
-  t = t.replace(/\b(\d+)\b/g, function(m){ return park('<span class="tk-n">' + m + '</span>'); });
-  t = t.replace(/([A-Za-z_$][\w$]*)(\s*\()/g, function(_, fn, br){ return park('<span class="tk-f">' + fn + '</span>') + br; });
-  t = t.replace(kwRegex(lang), function(_, pre, kw){ return pre + park('<span class="tk-k">' + kw + '</span>'); });
-  t = t.replace(/\u0000(\d+)\u0000/g, function(_, i){ return spans[+i]; });
-  return t + (comment ? '<span class="tk-c">' + escHtml(comment) + '</span>' : '');
-}
-
-const codeEls = {};
-let codeState = null;
-let gutterTimer = 0;
-let codeLang = 'js';
-
-function syncCompact(){
-  if(!codeEls.pane) return;
-  const narrow = window.innerWidth <= 620;
-  if(codeEls.pane.classList.contains('compact') !== narrow){
-    codeEls.pane.classList.toggle('compact', narrow);
-    buildCodePanel();
-  }
-}
-/* full-screen code reading (especially useful on a phone) */
-function toggleCodeFull(){
-  const pane = $('codepane');
-  const on = !pane.classList.contains('expanded');
-  pane.classList.toggle('expanded', on);
-  document.body.classList.toggle('codefull', on);
-  $('expandCode').setAttribute('aria-pressed', String(on));
-  /* the panel just changed size: re-measure and re-place the highlight */
-  remeasureCode();
-  const fi = Math.min(S.nframes - 1, S.raf);
-  if(S.frames.length){ codeState.step = undefined; updateCode(S.frames[fi]); }
-}
-function showLang(lang){
-  codeLang = lang;
-  [...$('langbar').children].forEach(function(b){
-    b.setAttribute('aria-selected', String(b.dataset.lang === lang));
-  });
-  buildCodePanel();
-  // keep the current frame highlighted in the newly rendered language
-  const fi = Math.min(S.nframes - 1, S.raf);
-  if(S.frames.length) updateCode(S.frames[fi]);
-}
-
-function buildCodePanel(){
-  if(gutterTimer){ clearInterval(gutterTimer); gutterTimer = 0; }
-  codeEls.pane  = $('codepane');
-  codeEls.wrap  = $('codeWrap');
-  codeEls.lines = $('codeLines');
-  codeEls.pre   = $('codePre');
-  codeEls.hl    = $('lnHl');
-  codeEls.main  = $('codeMain');
-  const def = ALGOS[S.algo];
-  const pack = LANGS[S.algo][codeLang];
-  const src = pack.code;
-  codeEls.lines.innerHTML = src.map(function(_, i){
-    return '<span id="gut' + (i + 1) + '">' + (i + 1) + '</span>';
-  }).join('');
-  const compact = codeEls.pane.classList.contains('compact');
-  codeEls.pre.innerHTML = src.map(function(l, i){
-    const shown = compact ? splitComment(l, codeLang)[0].replace(/\s+$/, '') : l;
-    return '<span class="cl" id="cl' + (i + 1) + '">' + (highlight(shown, codeLang) || '&nbsp;') + '</span>';
-  }).join('');
-  $('codeName').textContent = def.en;
-  $('codeMeta').textContent = def.note + ' · ' + CODE_LANGS.filter(function(l){ return l.id === codeLang; })[0].label;
-  const lh0 = parseFloat(getComputedStyle(codeEls.pre).lineHeight) || 19;
-  codeEls.wrap.style.setProperty('--lh', lh0 + 'px');
-  const r = codeEls.main.getBoundingClientRect();
-  const h = r.height || codeEls.wrap.getBoundingClientRect().height || 300;
-  /* width of one monospace character, used to keep the active part of a long
-     line inside the viewport when the panel is narrower than the code */
-  let charW = 0;
-  try {
-    const probe = document.createElement('span');
-    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre';
-    probe.textContent = 'x'.repeat(40);
-    codeEls.pre.appendChild(probe);
-    charW = probe.getBoundingClientRect().width / 40;
-    codeEls.pre.removeChild(probe);
-  } catch(e){ charW = 0; }
-  codeState = { lh: lh0, h: h, viewH: Math.max(40, h), wrapW: codeEls.wrap.clientWidth || 0,
-                /* -1 forces the first frame after a rebuild to set both transforms */
-                appliedScroll: -1, appliedLine: -1, hlOn: false, smooth: false,
-                step: undefined, line: -1, scroll: 0, max: src.length, charW: charW,
-                hits: new Array(src.length + 1).fill(0), hitsAt: 0, paintedAt: -1, lines: {} };
-  markHotLines();
-}
-
-/* resolve the frame's semantic step to a line in the active language */
-function updateCode(frame){
-  if(!codeState || !frame) return;
-  const pack = LANGS[S.algo][codeLang];
-  const step = frame.step;
-  if(step === codeState.step) return;
-  /* The highlight follows the running line immediately — the writes below only happen
-     when the line actually changes, so this costs nothing when the step repeats. */
-  const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-  codeState.step = step;
-  if(step === null){
-    if(codeState.line > 0 || codeState.hlOn){
-      if(codeState.hlOn){ codeEls.hl.classList.remove('on'); codeState.hlOn = false; }
-      if(codeState.line > 0 && codeState.lines[codeState.line]) codeState.lines[codeState.line].classList.remove('on');
-      codeState.lines = {}; codeState.line = -1;
-      setText('lineChip', '行 —');
-      setText('cfLine', '—');
-      setText('cfNote', frame.hint || '跑完了');
-    }
-    return;
-  }
-  codeState.paintedAt = now;
-  const ln = (step && pack.steps[step]) || -1;
-  /* the guard above already ensures the highlighted line really changed */
-  if(codeState.line > 0 && codeState.line !== ln && codeState.lines[codeState.line]){
-    codeState.lines[codeState.line].classList.remove('on');
-  }
-  codeState.lines = {};
-  if(ln > 0 && ln <= codeState.max){
-    const el = $('cl' + ln);
-    if(el){ el.classList.add('on'); codeState.lines[ln] = el; }
-    const y = (ln - 1) * codeState.lh;
-    const viewH = codeState.viewH || Math.max(40, codeState.h);
-    /* Scroll only when the line approaches an edge. Re-centring on every step made the
-       code jitter up and down whenever two active lines were far apart, which read as a
-       flicker; a comfort band (a couple of lines at the bottom, one at the top) keeps a
-       back-and-forth pair like compare/swap on screen together without any movement. */
-    const lineTop = (ln - 1) * codeState.lh;
-    const band = codeState.lh * (ln > codeState.line ? 2.5 : 1) + 6;
-    const needsScroll = lineTop < codeState.scroll + 4 || lineTop > codeState.scroll + viewH - band;
-    if(needsScroll){
-      const maxScroll = Math.max(0, codeState.max * codeState.lh - viewH);
-      codeState.scroll = Math.min(maxScroll, Math.max(0, lineTop - viewH * 0.34));
-    }
-    /* Write only what actually changed. Rewriting the same style/text every frame
-       recreates text nodes and forces layout, which reads as a flicker. */
-    if(codeState.appliedScroll !== codeState.scroll){
-      codeEls.lines.style.transform = 'translateY(' + (-codeState.scroll) + 'px)';
-      codeEls.pre.style.transform   = 'translateY(' + (-codeState.scroll) + 'px)';
-      if(codeState.appliedLine > 0){
-        codeEls.hl.style.transform = 'translateY(' + ((codeState.appliedLine - 1) * codeState.lh - codeState.scroll) + 'px)';
-      }
-      codeState.appliedScroll = codeState.scroll;
-    }
-    if(codeState.appliedLine !== ln){
-      /* the bar is a sibling of the code text, so it needs the content position minus
-         the scroll offset — otherwise it stays at its unscrolled y and vanishes when the
-         panel scrolls (which is what happened on phones) */
-      codeEls.hl.style.transform = 'translateY(' + (y - codeState.scroll) + 'px)';
-      codeState.appliedLine = ln;
-    }
-    if(!codeState.hlOn){ codeEls.hl.classList.add('on'); codeState.hlOn = true; }
-    codeState.smooth = false;
-    /* pan sideways so the step token on the active line stays readable */
-    if(codeEls.wrap && codeState.charW > 0){
-      const src = pack.code[ln - 1] || '';
-      const indent = src.length - src.replace(/^\s+/, '').length;
-      const c0 = indent * codeState.charW;
-      const c1 = src.replace(/\s+$/, '').length * codeState.charW;
-      const view = codeState.wrapW || codeEls.wrap.clientWidth;
-      let want = codeEls.wrap.scrollLeft;
-      if(c1 <= view + 1) want = 0;
-      else if(c1 - want > view) want = Math.max(0, Math.min(c0 - 6, c1 - view + 8));
-      if(want !== codeEls.wrap.scrollLeft) codeEls.wrap.scrollLeft = want;
-    }
-    setText('lineChip', '行 ' + ln);
-    setText('cfLine', ln + ' / ' + codeState.max);
-    const c = splitComment(pack.code[ln - 1] || '', codeLang)[1];
-    setText('cfNote', c ? c.replace(/^[\/\*#\s]+|[\*\/\s]+$/g, '') : (frame.hint || ''));
-    codeState.line = ln;
-  } else {
-    if(codeState.hlOn){ codeEls.hl.classList.remove('on'); codeState.hlOn = false; }
-    codeState.line = -1;
-    setText('lineChip', '行 —');
-    setText('cfLine', '—');
-    setText('cfNote', '');
-  }
-  if(codeState.line > 0) setText('cfHits', fmt(codeState.hits[codeState.line] || 0));
-}
-
-/* assign textContent only when it differs — avoids recreating text nodes each frame */
-const _textCache = {};
-function setText(id, value){
-  window.__tw = window.__tw || {};
-  const c = window.__tw[id] || (window.__tw[id] = { calls: 0, writes: 0, last: null });
-  c.calls++;
-  if(_textCache[id] === value) return;
-  c.writes++;
-  c.last = value;
-  _textCache[id] = value;
-  const el = $(id);
-  if(el) el.textContent = value;
-}
-
-/* the gutter shows line numbers until a line has executed, then its execution count */
-function paintGutter(){
-  if(!codeState) return;
-  const counts = codeState.hits;
-  const max = Math.max.apply(null, counts.concat([0]));
-  let hot = -1;
-  for(let l = 1; l <= codeState.max; l++){
-    const slot = $('gut' + l);
-    if(!slot) continue;
-    const txt = counts[l] > 0 ? (counts[l] > 99999 ? '99k+' : String(counts[l])) : String(l);
-    const isCount = counts[l] > 0;
-    if(slot._t !== txt){ slot._t = txt; slot.textContent = txt; }
-    if(slot._c !== isCount){ slot._c = isCount; slot.classList.toggle('cnt', isCount); }
-    if(counts[l] === max && max > 0) hot = l;
-  }
-  setText('cfHot', hot > 0 ? ('第 ' + hot + ' 行 · ' + fmt(max) + ' 次') : '—');
-}
-function markHotLines(){
-  paintGutter();
-  if(codeState) codeState.paintedAt = S.raf;
-  clearInterval(gutterTimer);
-  gutterTimer = setInterval(function(){
-    if(!codeState) return;
-    if(S.raf !== codeState.paintedAt){
-      paintGutter();
-      codeState.paintedAt = S.raf;
-    }
-  }, 220);
-}
-
-/* rebuild the per-line execution counters whenever the timeline changes */
-function resetCodeCounts(){
-  if(!codeState) return;
-  codeState.hits = new Array(codeState.max + 1).fill(0);
-  codeState.hitsAt = 0;
-  paintGutter();
-}
-function countStepHits(idx){
-  if(!codeState) return;
-  const frames = S.frames;
-  if(idx < codeState.hitsAt){
-    codeState.hits = new Array(codeState.max + 1).fill(0);
-    codeState.hitsAt = 0;
-  }
-  const pack = LANGS[S.algo][codeLang];
-  for(let f = codeState.hitsAt; f <= idx && f < frames.length; f++){
-    const st = frames[f] && frames[f].step;
-    const ln = st && pack.steps[st];
-    if(ln > 0 && ln <= codeState.max) codeState.hits[ln]++;
-  }
-  codeState.hitsAt = idx + 1;
-}
-
-/* ============================================================
-   13. Wiring
-   ============================================================ */
-/* resume() is async, so queue the confirmation tone behind it */
-function resumeAudio(andThen){
-  if(!AC) { if(andThen) andThen(); return; }
-  if(AC.state === 'running'){ if(andThen) andThen(); return; }
-  const p = AC.resume();
-  if(p && p.then) p.then(() => { if(andThen) andThen(); }).catch(() => {});
-  else if(andThen) andThen();
-}
-$('play').addEventListener('click', () => {
-  ensureAudio();
-  resumeAudio();
-  if(S.done && S.frames.length){ S.raf = 0; S.done = false; S.acc = 0; S.delay = 0.6; S.finAt = -1; }
-  S.playing = !S.playing;
-  setPlayIcon();
-});
-$('shuffle').addEventListener('click', () => regenerate(true));
-$('sound').addEventListener('click', () => {
-  ensureAudio();
-  S.sound = !S.sound;
-  $('sound').setAttribute('aria-pressed', String(S.sound));
-  if(S.sound) resumeAudio(() => tone(69, 0.1, 0.25));
-});
-$('ruler').addEventListener('click', () => {
-  S.ruler = !S.ruler;
-  $('ruler').setAttribute('aria-pressed', String(S.ruler));
-});
-function toggleCode(){
-  const hide = !$('codepane').classList.contains('hidden');
-  $('codepane').classList.toggle('hidden', hide);
-  $('work').classList.toggle('nocode', hide);
-  $('codeToggle').setAttribute('aria-pressed', String(!hide));
-  setTimeout(resize, 0);            // the canvas pane just got wider — remeasure
-}
-$('codeToggle').addEventListener('click', toggleCode);
-$('expandCode').addEventListener('click', toggleCodeFull);
-document.querySelectorAll('.seg [data-style]').forEach(b => {
-  b.addEventListener('click', () => {
-    S.barStyle = b.dataset.style;
-    document.querySelectorAll('.seg [data-style]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-  });
-});
-$('speed').addEventListener('input', e => { S.speed = +e.target.value; syncSlider(e.target); speedLabel(); });
-$('size').addEventListener('input', e => {
-  S.n = +e.target.value;
-  $('sizeOut').textContent = S.n;
-  syncSlider(e.target);
-});
-$('size').addEventListener('change', () => regenerate(true));
-
-document.addEventListener('keydown', e => {
-  if(e.target.tagName === 'INPUT') return;
-  if(e.code === 'Space'){ e.preventDefault(); $('play').click(); }
-  else if(e.key === 'r' || e.key === 'R'){ $('shuffle').click(); }
-  else if(e.key === '1'){ $('ruler').click(); }
-  else if(e.key === 'm' || e.key === 'M'){ $('sound').click(); }
-  else if(e.key === 'c' || e.key === 'C'){ toggleCode(); }
-  else if(e.key === 'f' || e.key === 'F'){ toggleCodeFull(); }
-  else if(e.key === 'Escape' && $('codepane').classList.contains('expanded')){ toggleCodeFull(); }
-  else if(e.key === 'l' || e.key === 'L'){
-    const i = CODE_LANGS.findIndex(function(x){ return x.id === codeLang; });
-    showLang(CODE_LANGS[(i + 1) % CODE_LANGS.length].id);
-  }
-  else if(e.key === 'ArrowRight' || e.key === 'ArrowLeft'){
-    const d = e.key === 'ArrowRight' ? 0.06 : -0.06;
-    S.speed = Math.max(0, Math.min(1, S.speed + d));
-    $('speed').value = S.speed; syncSlider($('speed')); speedLabel();
-  }
-});
-
-let rt = 0;
-window.addEventListener('resize', () => {
-  clearTimeout(rt);
-  rt = setTimeout(() => { resize(); syncCompact(); remeasureCode(); }, 90);
-});
-window.addEventListener('orientationchange', () => setTimeout(resize, 200));
-
-/* ============================================================
-   13. Boot
-   ============================================================ */
-buildAlgoTabs();
-buildLangTabs();
-codeEls.pane = $('codepane');
-codeEls.pane.classList.toggle('compact', window.innerWidth <= 620);
-buildCodePanel();
-resize();
-syncSlider($('speed')); syncSlider($('size'));
-speedLabel();
-updateChips(0);
-regenerate(true);
-window.__sortingAtlas = {
-  select: function(key){ if(ALGOS[key]) selectAlgo(key); },
-  load: function(algo, values){
-    if(ALGOS[algo]) S.algo = algo;
-    S.values = values.slice(); S.n = values.length;
-    S.frames = buildFrames(); S.nframes = S.frames.length;
-    S.raf = 0; S.acc = 0; S.done = false; S.playing = false; S.hover = -1;
-    if(typeof buildCodePanel === 'function') buildCodePanel();
-    return { frames: S.nframes, values: S.values.slice() };
-  },
-  findSwap: function(i){
-    return findSwapPair(S.frames[i] && S.frames[i].a, S.frames[i+1] && S.frames[i+1].a);
-  },
-  goto: function(i, frac){
-    S.raf = i; S.acc = frac || 0; S.done = false; S.playing = false;
-    setPlayIcon();
-  },
-  /* for automated checks: inked x-runs on one scanline of the canvas */
-  sampleRow: function(pxAboveBaseline){
-    const r = cv.getBoundingClientRect();
-    const Hcss = r.height;
-    const rulerH = S.ruler ? 22 : 0;
-    const y1 = Hcss - 16 - rulerH;
-    const dpr = cv.width / r.width;
-    const y = Math.max(0, Math.round((y1 - pxAboveBaseline) * dpr));
-    const d = ctx.getImageData(0, y, cv.width, 1).data;
-    const runs = [];
-    let start = -1;
-    for(let x = 0; x < cv.width; x++){
-      const a = d[x*4+3], rr = d[x*4], gg = d[x*4+1], bb = d[x*4+2];
-      const inked = a > 40 && (rr + gg + bb) > 90;
-      if(inked && start < 0) start = x;
-      if(!inked && start >= 0){ runs.push([Math.round(start/dpr), Math.round(x/dpr)]); start = -1; }
-    }
-    if(start >= 0) runs.push([Math.round(start/dpr), Math.round(cv.width/dpr)]);
-    return { y: y, dpr: dpr, runs: runs, baseline: y1 };
-  },
-  /* publish the swap geometry so it can be verified without pixel scraping */
-  frameCount: function(){ return S.nframes; },
-  swapAt: function(i){
-    /* any movement, not just a strict two-element swap */
-    const from = S.frames[i] && S.frames[i].a, to = S.frames[i+1] && S.frames[i+1].a;
-    const mv = detectMoves(from, to);
-    const g = (mv && mv.length) ? mv.map(function(m){ return m.from; }) : null;
-    if(!g) return null;
-    const r = cv.getBoundingClientRect();
-    const bw = Math.max(1.15, ((r.width - 20) - 20) / Math.max(1, S.n));
-    const out = { bw: bw, pair: g, moves: mv, positions: {} };
-    const easedOf = function(t){ return t * t * (3 - 2 * t); };
-    [0, 0.25, 0.5, 0.75, 1].forEach(function(t){
-      const f = easedOf(t), pos = {};
-      for(let k = 0; k < mv.length; k++){
-        const m = mv[k];
-        pos[k] = { from: m.from, to: m.to, slot: m.from,
-                   centre: m.from * bw + bw / 2 + (m.to - m.from) * bw * f, lift: 0 };
-      }
-      out.positions[t] = pos;
-    });
-    return out;
-  },
-  /* diagnostics: why might the highlighted line sit outside the code viewport? */
-  codeDebug: function(){
-    if(!codeState) return null;
-    const el = codeState.line > 0 ? $('cl' + codeState.line) : null;
-    const main = $('codeMain').getBoundingClientRect();
-    const eb = el ? el.getBoundingClientRect() : null;
-    return {
-      line: codeState.line, step: codeState.step,
-      lh: codeState.lh, h: codeState.h, scroll: codeState.scroll,
-      max: codeState.max,
-      panelClientH: codeEls.main.clientHeight,
-      mainTop: Math.round(main.top), mainBottom: Math.round(main.bottom), mainH: Math.round(main.height),
-      elTop: eb ? Math.round(eb.top) : null, elBottom: eb ? Math.round(eb.bottom) : null,
-      inside: eb ? (eb.top >= main.top - 1 && eb.bottom <= main.bottom + 1) : null,
-      transform: codeEls.pre.style.transform,
-      hlTransform: codeEls.hl.style.transform,
-      /* used by the automated checks: is the HIGHLIGHT BAR itself on screen and in line
-         with its row? (the row can be in view while the bar is not) */
-      hlOn: codeState.hlOn, appliedLine: codeState.appliedLine,
-      hlTop: Math.round(codeEls.hl.getBoundingClientRect().top),
-      hlInside: (function(){
-        const b = codeEls.hl.getBoundingClientRect(), m = codeEls.main.getBoundingClientRect();
-        return b.bottom > m.top + 1 && b.top < m.bottom - 1;
-      })(),
-      hlAligned: Math.abs(codeEls.hl.getBoundingClientRect().top - (el ? el.getBoundingClientRect().top : 0)) < 2,
-      appliedScroll: codeState.appliedScroll, codeStateScroll: codeState.scroll,
-      viewH: codeState.viewH, lh: codeState.lh, step: codeState.step,
-      preTransform: codeEls.pre.style.transform
-    };
-  },
-  colX: function(p){
-    const r = cv.getBoundingClientRect();
-    const padL = 20, padR = 20;
-    const bw = ((r.width - padR) - padL) / S.n;
-    return padL + p * bw + bw / 2;
-  },
-  arrays: function(i){
-    return { from: S.frames[i] ? S.frames[i].a.slice() : null,
-             to: S.frames[i+1] ? S.frames[i+1].a.slice() : null };
-  },
-  freeze: function(pct){
-    S.raf = Math.max(0, Math.round((S.nframes - 1) * pct));
-    S.acc = 0; S.done = false; S.playing = false;
-    if(typeof setPlayIcon === 'function') setPlayIcon();
-  },
-  frameAt: function(i){ return S.frames[i] || null; },
-  detect: function(a, b){ return detectMoves(a, b); },
-  stepsForLang: function(){ return LANGS[S.algo][codeLang].steps; },
-  state: function(){
-    var f = S.frames[Math.min(S.nframes - 1, S.raf)] || null;
-    return { algo: S.algo, n: S.n, nframes: S.nframes, raf: S.raf,
-             step: f ? f.step : null, hint: f ? f.hint : '', done: S.done, playing: S.playing };
-  }
-};
-})();
-</script>
-</body>
+        <div>
+          <dt>前后单步</dt>
+          <dd><kbd>←</kbd> <kbd>→</kbd></dd>
+        </div>
+        <div>
+          <dt>重新生成数据</dt>
+          <dd><kbd>R</kbd></dd>
+        </div>
+        <div>
+          <dt>显示 / 隐藏代码</dt>
+          <dd><kbd>C</kbd></dd>
+        </div>
+        <div>
+          <dt>全屏阅读代码</dt>
+          <dd><kbd>F</kbd></dd>
+        </div>
+        <div>
+          <dt>切换代码语言</dt>
+          <dd><kbd>L</kbd></dd>
+        </div>
+        <div>
+          <dt>声音开关</dt>
+          <dd><kbd>M</kbd></dd>
+        </div>
+      </dl>
+    </dialog>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <script type="module" src="/src/atlas.js"></script>
+  </body>
 </html>
