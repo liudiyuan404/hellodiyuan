@@ -1,6 +1,6 @@
 {
-  "version": 55,
-  "notes": "支持新版 Android 通知栏同步计时、暂停继续和结束记录",
+  "version": 56,
+  "notes": "修复手机日程页的大块留白和日期切换按钮错位",
   "zip": "web.zip",
-  "sha256": "4505d466d9a7c27de237c6315518ce3f37e7026eb90ca53dcbded23a45d60e70"
+  "sha256": "4e7932eef8edac3a80890d0fc42f53a7a375c1a4bb7c62e9cbf58791c00d63d6"
 }
