@@ -1,6 +1,6 @@
 {
-  "version": 58,
-  "notes": "专注页统一暖纸底色与柔和科目配色，浅深色更协调",
+  "version": 59,
+  "notes": "修复科目倒计时被旧计时状态覆盖，移除统计页今日目标",
   "zip": "web.zip",
-  "sha256": "3bd7fdaaf419a2e8b223a47d8bcbf1af041dd59606a0881ad2f1392845ebb0a3"
+  "sha256": "8bdba952fcea333982b7daa00a14b644cd9c02285e667051e0a7de02490cc2af"
 }
