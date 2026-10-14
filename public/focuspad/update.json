@@ -1,6 +1,6 @@
 {
-  "version": 59,
-  "notes": "修复科目倒计时被旧计时状态覆盖，移除统计页今日目标",
+  "version": 60,
+  "notes": "修复长时间计时显示溢出，增强云同步和删除记录保护",
   "zip": "web.zip",
-  "sha256": "8bdba952fcea333982b7daa00a14b644cd9c02285e667051e0a7de02490cc2af"
+  "sha256": "9a5471d89f5f03add45d1c662583be762ec9b7dd7d2c85c2b2de3654320472e4"
 }
